@@ -1,0 +1,5 @@
+tools/bwa-0.7.17
+tools/samtools-1.10
+tools/gatk-4.1.7.0
+
+data/references
