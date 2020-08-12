@@ -9,3 +9,7 @@ stuff here...
 ## Software requirements
 
 * samtools
+
+## Docs pages
+
+1. [Getting started](getting-started.md) 
