@@ -1,5 +1,9 @@
 # Getting Started
 
+Navigation:
+* [home](../index.md)
+* [next](installing-external-tools.md)
+
 ## Downloading
 
 the source code for the pipeline library can be found on [github](https://github.com/gkm-software-dev/Sequence-Analysis-Pipelines/tree/experiment-jack). Simply clone the repository onto your local machine. 
