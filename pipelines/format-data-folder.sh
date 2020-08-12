@@ -40,6 +40,7 @@ create_sub_directories() {
 	[[ ! -d ${rds_dir} ]] &&  { mkdir ${rds_dir}; echo "  created ${rds_dir}"; }
 	[[ ! -d ${sam_dir} ]] &&  { mkdir ${sam_dir}; echo "  created ${sam_dir}"; }
 	[[ ! -d ${tmp_dir} ]] &&  { mkdir ${tmp_dir}; echo "  created ${tmp_dir}"; }
+	[[ ! -d ${vcf_dir} ]] &&  { mkdir ${vcf_dir}; echo "  created ${vcf_dir}"; }
 
 	return $status
 }

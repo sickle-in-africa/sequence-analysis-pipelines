@@ -1,6 +1,9 @@
-data/references
+data
 docs/site
 
 tools/bwa-0.7.17
 tools/samtools-1.10
 tools/gatk-4.1.7.0
+tools/bcftools-1.10.2
+tools/fastqc
+tools/trimmomatic-0.39

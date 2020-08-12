@@ -69,11 +69,11 @@ build_bwa_index() {
 	# 2. 'bwtsw' is for long sequences (like human genomes)
 
 	ref_file=${inputs['ref']}
-	idx_file=${ref_file/.fa/.bwa}
+	idx_file="${ref_file}.bwa"
 
 	if [[ ! -f "${idx_file}.amb" ]]; then
 		$bwa index \
-			-p ${ref_file/.fa/.bwa} \
+			-p ${ref_file} \
 			-a is \
 			$ref_file
 	else
@@ -120,7 +120,7 @@ build_reference_dict() {
 	# https://gatk.broadinstitute.org/hc/en-us/articles/360037068312-CreateSequenceDictionary-Picard-
 
 	ref_file=${inputs['ref']}
-	dict_file=${ref_file/.fa/dict}
+	dict_file=${ref_file/.fa/.dict}
 
 	if [[ ! -f "$dict_file" ]]; then
 		$gatk CreateSequenceDictionary \

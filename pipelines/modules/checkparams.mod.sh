@@ -49,11 +49,12 @@ function check_ref() {
        fi
 }
 function check_bwa_idx() {
-       if [[ ! -f "${inputs["ref"]}.bwt" ]]; then
-            echo " can't find the bwa index for ${inputs["ref"]}"
-			return 1
-       fi
+  if [[ ! -f "${inputs["ref"]}.bwt" ]]; then
+    echo " can't find the bwa index files for ${inputs["ref"]}"
+		return 1
+  fi
 }
+
 function check_gatk_dict() {
 	if [[ ! -f "${inputs["ref"]/.fasta/.dict}" ]] || [[ ! -f "${inputs["ref"]/.fa/.dict}" ]] ; then
 		echo " can't find gatk reference dictionary"
