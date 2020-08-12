@@ -1,0 +1,7 @@
+site_name: SAP
+nav:
+  - overview: index.md
+  - getting started: getting-started.md
+
+theme:
+  name: mkdocs
