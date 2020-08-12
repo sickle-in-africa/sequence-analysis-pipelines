@@ -13,6 +13,8 @@ Installation of the library itself is straightforward. Simply:
 
 2. open the file `Sequence-Analysis-Pipelines/includes/locations.sh` and modify the line `pro_dir=/home/jack/Local/GeneMap/Sequence-Analysis-Pipelines` to point to where you have saved the library. 
 
+3. format the `data/` directory by running the following script: `<pipeline library path>/pipelines/format-data-folder.sh`. You may need to make it executable first. If successfull, you should notice that many empty sub directories in `data/` have been created, for example `data/bam`.
+
 ### ...the library dependencies
 The full pipeline library makes use of many external tools, each of which can be installed in the `tools/` folder inside the library's top directory, or somewhere else on your machine. Each tool needs to be discoverable by the library functions, so for each tool you install, the path of the tool executable must be added to the `includes/locations.sh` file. 
 
@@ -27,3 +29,5 @@ The external dependencies for the whole pipeline library are:
 3. **samtools** - a library for reading, writing, and manipulating fastq, sam, bam, and vcf files. Source code and manual can be found [here](http://www.htslib.org/).
 
 ## Running a pipeline
+
+Once you have set up all the required tools, test your library installation. 
