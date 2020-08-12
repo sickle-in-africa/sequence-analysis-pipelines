@@ -12,4 +12,6 @@ stuff here...
 
 ## Docs pages
 
-1. [Getting started](getting-started.md) 
+1. [Getting started](pages/getting-started.md)
+
+2. [Installing external tools](pages/installing-external-tools.md) 
