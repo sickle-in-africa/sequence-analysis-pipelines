@@ -11,7 +11,7 @@
 
 
 ## project path variables
-pro_dir=/home/jack/Local/GeneMap/Sequence-Analysis-Pipelines
+pro_dir=/home/jack/Local/GeneMap/sequence-analysis-pipelines
 
 src_dir=${pro_dir}/source
 tls_dir=${pro_dir}/tools

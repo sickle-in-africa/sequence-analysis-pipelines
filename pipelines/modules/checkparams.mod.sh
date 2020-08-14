@@ -49,7 +49,7 @@ function check_ref() {
        fi
 }
 function check_bwa_idx() {
-  if [[ ! -f "${inputs["ref"]}.bwt" ]]; then
+  if [[ ! -f "${ref_dir}/bwa.${inputs['ref_base']}.amb" ]]; then
     echo " can't find the bwa index files for ${inputs["ref"]}"
 		return 1
   fi

@@ -84,7 +84,7 @@ initialize_inputs_hash() {
 	value_from_json ${inputs["input_json"]} '.glist' 	   inputs["glist"]
 	value_from_json ${inputs["input_json"]} '.ped' 	   	   inputs["ped"]
 	value_from_json ${inputs["input_json"]} '.dbsnp' 	   inputs["dbsnp"]
-	echo '...done'
+	echo '...done.'
 
 	# 3. check that inputs make sense
 	printf '  checking that parameter values make sense...'

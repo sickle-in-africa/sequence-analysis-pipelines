@@ -59,23 +59,17 @@ initialize_inputs_hash() {
 
 
 build_bwa_index() {
-	local \
-		ref_file \
-		idx_file
 
 	# option -a specifies the algorithm, with arguments:
 	# 
 	# 1. 'is' is for short sequences (like virus genomes)
 	# 2. 'bwtsw' is for long sequences (like human genomes)
 
-	ref_file=${inputs['ref']}
-	idx_file="${ref_file}.bwa"
-
-	if [[ ! -f "${idx_file}.amb" ]]; then
+	if [[ ! -f "${ref_dir}/bwa.${inputs['ref_base']}.amb" ]]; then
 		$bwa index \
-			-p ${ref_file} \
+			-p ${ref_dir}/bwa.${inputs['ref_base']} \
 			-a is \
-			$ref_file
+			${inputs['ref']}
 	else
 		echo "skipping bwa alignment index build as index already exists"
 	fi
