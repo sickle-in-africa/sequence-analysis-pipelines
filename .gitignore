@@ -1,5 +1,5 @@
 data
-docs/site
+docs-site/site
 
 tools/bwa-0.7.17
 tools/samtools-1.10
