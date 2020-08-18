@@ -160,7 +160,7 @@ function fq() {
 		&& { echo "...done."; return 0; }
 }
 
-#  tim()
+#  trim()
 #
 #	*clips unwanted reads in fastq files with trimmomatic*
 #	inputs:
@@ -543,14 +543,11 @@ _create_realigner_targets() {
 		option_string \
 		status=0
 
-	java -jar $gatk3 -T RealignerTargetCreator
-	exit 0
-
 	option_string="-jar ${gatk3} \
-		-T RealignerTargetCreator \
-		-R ${inputs["ref"]} \
-		-I ${bam_dir}/{2} \
-		-o ${bam_dir}/{2}.intervals"
+		T=RealignerTargetCreator \
+		R=${inputs["ref"]} \
+		I=${bam_dir}/{2} \
+		O=${bam_dir}/{2}.intervals"
 
 	log_file_string="${inputs["log_prefix"]}${inputs["cohort_id"]}.{1}.log"
 

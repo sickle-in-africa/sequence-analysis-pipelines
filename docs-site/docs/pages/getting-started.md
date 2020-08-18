@@ -1,6 +1,8 @@
-# Getting Started
+Getting Started
+===============
 
-Navigation:
+docs navigation:
+----------------
 * [home](../index.md)
 * [next](installing-external-tools.md)
 
@@ -73,3 +75,8 @@ computing jaccard index...
 The Jaccard value is a [measure of how simular two sets are](https://en.wikipedia.org/wiki/Jaccard_index). Here we are measuring the difference between the truth vcf file, and the estimated one, where each vcf file is a set of variants. For more details, naviagate to the `<SAP path>/data/vcf/c_1.isec` directory. Saved here is the full comparison between truth and estimated vcf files for your simulation. 
 
 *If the test-suite fails with errors*, the details of the errors are not printed to the terminal screen. To find the full log out put, check the directory `<SAP path>/data/logs` for information. The job you have just run has a random ID code, which was printed to the terminal. Use this to find the logs associated with the failed run to diagnose the problem. 
+
+docs navigation:
+----------------
+* [home](../index.md)
+* [back](getting-started.md)

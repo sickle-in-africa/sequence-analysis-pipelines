@@ -30,18 +30,22 @@ pip_dir=${pro_dir}/pipelines
 tst_dir=${pro_dir}/test-suites
 
 ## alignment & variant calling tools
-bowtie2=${tls_dir}/bowtie2-2.4.1-linux-x86_64
+bowtie2=${tls_dir}/bowtie2-2.4.1-linux-x86_64/bowtie2
+bowtie2_build=${tls_dir}/bowtie2-2.4.1-linux-x86_64/bowtie2-build
 samtools=${tls_dir}/samtools-1.10/samtools
 bcftools=${tls_dir}/bcftools-1.10.2/bcftools
 bwa=${tls_dir}/bwa-0.7.17/bwa
-gsnap=${tls_dir}/gmap-2019-09-12/build/bin
+gsnap=${tls_dir}/gmap-2019-09-12/bin/gsnap
+gmap_build=${tls_dir}/gmap-2019-09-12/bin/gmap_build
 stampy=${tls_dir}/stampy-1.0.32
 isaac=${tls_dir}/Isaac4/build/bin
 gatk=${tls_dir}/gatk-4.1.7.0/gatk
+gatk3=${tls_dir}/gatk-3.3/GenomeAnalysisTK.jar
 picard=${tls_dir}/picard-2.23.1/picard.jar
 simulate=${tls_dir}/simulate-0.1/simulate.pl
 fastqc=${tls_dir}/fastqc/fastqc
 trimmomatic=${tls_dir}/trimmomatic-0.39/trimmomatic-0.39.jar
+freebayes=${tls_dir}/freebayes/bin/freebayes
 
 jaccard=${tls_dir}/jaccard/jaccard.py
 generatejson=${tls_dir}/jaccard/generate-json.py

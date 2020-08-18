@@ -33,6 +33,8 @@ workflow() {
 
 	custom_call bmap "mapping reads to the reference with bwa..."
 
+	custom_call indelreal "performing indel realignment..."
+
 	custom_call bcfcall "calling variants with bcftools..."
 	
 }

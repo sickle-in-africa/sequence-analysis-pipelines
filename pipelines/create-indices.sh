@@ -28,6 +28,10 @@ workflow() {
 
 	custom_call build_bwa_index "building bwa alignment index..."
 
+	custom_call build_gmap_index "building gsnap aligner index..."
+
+	custom_call build_bowtie2_index "building bowtie2 aligner index..."
+
 	custom_call build_reference_index "building reference index..."
 
 	custom_call build_reference_dict "building reference dictionary"
@@ -74,6 +78,32 @@ build_bwa_index() {
 		echo "skipping bwa alignment index build as index already exists"
 	fi
 	
+}
+
+build_gmap_index() {
+
+	# this index is used by both gmap and gsnap
+	if [[ ! -d "${ref_dir}/gmap.lambda-virus" ]]; then
+		$gmap_build \
+			-D ${ref_dir} \
+			-d "gmap.lambda-virus" \
+			${inputs['ref']}
+	else
+		echo "skipping gmap index build as index already exists"
+	fi
+}
+
+build_bowtie2_index() {
+
+	if [[ ! -f "${ref_dir}/bowtie2.${inputs['ref_base']%.fa}.1.bt2l" ]]; then
+		$bowtie2_build \
+			--large-index \
+			${inputs['ref']} \
+			${ref_dir}/bowtie2.${inputs['ref_base']%.fa}
+	else
+		echo "skipping bowtie2 index build as index already exists"
+	fi
+
 }
 
 build_reference_index() {

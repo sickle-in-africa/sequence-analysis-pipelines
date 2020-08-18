@@ -18,8 +18,6 @@ workflow() {
 
 	echo '  cleaning reads files' && rm ${rds_dir}/* 2> /dev/null
 	echo '  cleaning truth vcf files' && rm ${vcf_dir}/*.truth.* 2> /dev/null
-	echo '  cleaning isec vcf files' && rm -r ${vcf_dir}/*.isec* 2> /dev/null
-
 }
 
 #

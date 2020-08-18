@@ -4,6 +4,10 @@ docs-site/site
 tools/bwa-0.7.17
 tools/samtools-1.10
 tools/gatk-4.1.7.0
+tools/gatk-3.3
 tools/bcftools-1.10.2
 tools/fastqc
 tools/trimmomatic-0.39
+tools/bowtie2-2.4.1-linux-x86_64
+tools/freebayes
+tools/gmap-2019-09-12

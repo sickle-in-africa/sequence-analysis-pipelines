@@ -31,7 +31,9 @@ workflow() {
 
 	custom_call initialize_inputs_hash "initializing pipeline input parameter values..."
 
-	custom_call aligner "aligning reads to the reference with ${inputs['sw_id']}..."
+	custom_call align_reads_to_reference "aligning reads to the reference with ${inputs['aligner_id']}..."
+
+	custom_call call_variants "calling variants with ${inputs['caller_id']}..."
 }
 
 #
@@ -43,31 +45,35 @@ initialize_inputs_hash() {
 	# 1. set default parameter values
 	printf '  setting default parameter values...'
 	# aligner() params:
-	inputs['sw_id']=NULL;		# name of the chosen aligner tool
-	inputs['ref_base']=NULL;	# basename of the reference sequence file
-	inputs['sample_id']=NULL;	# prefix for outputs
-	inputs['fastq1']=NULL;		# input fastq file (1)
-	inputs['fastq2']=NULL;		# input fastq file (2)
-	inputs['threads']=1;		# number of threads to parallelize over
-	inputs['maxmem']=100M;		# max memory per thread (approximately)
+	inputs['aligner_id']=NULL;			# name of he chosen aligner tool
+	inputs['caller_id']=NULL;				# name of the chosen variant caller tool
+	inputs['ref_base']=NULL;			# basename of the reference sequence file
+	inputs['sample_id']=NULL;			# prefix for outputs
+	inputs['fastq1']=NULL;				# input fastq file (1)
+	inputs['fastq2']=NULL;				# input fastq file (2)
+	inputs['threads']=1;				# number of threads to parallelize over
+	inputs['maxmem']=100M;				# max memory per thread (approximately)
+	inputs['recal_realign_on']='no';	# do recalibrations (options "yes", "no", "both")
 	echo '...done.'
 
 	# 2. update parameters with arguments from the input json file
 	printf '  updating with arguments from input json file...'
-	value_from_json ${inputs['input_json']} '.sw_id'		inputs['sw_id']
-	value_from_json ${inputs["input_json"]} '.ref_base'	   inputs["ref_base"]
+	value_from_json ${inputs['input_json']} '.aligner_id'	inputs['aligner_id']
+	value_from_json ${inputs['input_json']} '.caller_id'	inputs['caller_id']
+	value_from_json ${inputs["input_json"]} '.ref_base'		inputs["ref_base"]
 	value_from_json ${inputs['input_json']} '.sample_id'	inputs['sample_id']
 	value_from_json ${inputs['input_json']} '.fastq1_base'	inputs['fastq1_base']
 	value_from_json ${inputs['input_json']} '.fastq2_base'	inputs['fastq2_base']
 	value_from_json ${inputs['input_json']} '.threads'		inputs['threads']
 	value_from_json ${inputs['input_json']} '.maxmem'		inputs['maxmem']
+	value_from_json ${inputs['input_json']} '.recal_realign_on'		inputs['recal_realign_on']
 
 	inputs['ref']=${ref_dir}/${inputs['ref_base']}
 	inputs["fastq1"]=${rds_dir}/${inputs["fastq1_base"]}
 	inputs["fastq2"]=${rds_dir}/${inputs["fastq2_base"]}
-	inputs['prefix']="${inputs['sample_id']}_${inputs['sw_id']}_${inputs['ref_id']}";	# prefix for output files
+	inputs['prefix']="${inputs['sample_id']}.${inputs['aligner_id']}.${inputs['caller_id']}.${inputs['ref_base']%.fa}";	# prefix for output files
 	inputs['log_file']="${log_dir}/${inputs['prefix']}.log";							# output lof file path 
-	inputs['idx']="${ref_dir}/${inputs['sw_id']}.${inputs['ref_base']}";								# aligner index file
+	inputs['idx']="${ref_dir}/${inputs['aligner_id']}.${inputs['ref_base']}";				# aligner index file
 	[[ $status == 0 ]] && echo '...done'
 
 	# 3. check that inputs make sense
