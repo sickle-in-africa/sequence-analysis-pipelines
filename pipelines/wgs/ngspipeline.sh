@@ -58,15 +58,15 @@ initialize_inputs_hash() {
 
 	# 2. update parameters with arguments from the input json file
 	printf '  updating with arguments from input json file...'
-	value_from_json ${inputs['input_json']} '.aligner_id'	inputs['aligner_id']
-	value_from_json ${inputs['input_json']} '.caller_id'	inputs['caller_id']
-	value_from_json ${inputs["input_json"]} '.ref_base'		inputs["ref_base"]
-	value_from_json ${inputs['input_json']} '.sample_id'	inputs['sample_id']
-	value_from_json ${inputs['input_json']} '.fastq1_base'	inputs['fastq1_base']
-	value_from_json ${inputs['input_json']} '.fastq2_base'	inputs['fastq2_base']
-	value_from_json ${inputs['input_json']} '.threads'		inputs['threads']
-	value_from_json ${inputs['input_json']} '.maxmem'		inputs['maxmem']
-	value_from_json ${inputs['input_json']} '.recal_realign_on'		inputs['recal_realign_on']
+	_update_input_value_from_json 'aligner_id'
+	_update_input_value_from_json '.caller_id'
+	_update_input_value_from_json '.ref_base'
+	_update_input_value_from_json '.sample_id'
+	_update_input_value_from_json '.fastq1_base'
+	_update_input_value_from_json '.fastq2_base'
+	_update_input_value_from_json '.threads'
+	_update_input_value_from_json '.maxmem'
+	_update_input_value_from_json '.recal_realign_on'
 
 	inputs['ref']=${ref_dir}/${inputs['ref_base']}
 	inputs["fastq1"]=${rds_dir}/${inputs["fastq1_base"]}
@@ -86,6 +86,11 @@ initialize_inputs_hash() {
 
 	# 4. set up output logging and temporary files
 	#set_up_tmps_and_logs || { echo 'seting up temp and log directory failed'; status=1; }
+}
+
+_update_input_value_from_json() {
+	local key=$1
+	value_from_json ${inputs['input_json']} '.'${key}	inputs[${key}]
 }
 
 #

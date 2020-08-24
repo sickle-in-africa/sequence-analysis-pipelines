@@ -16,7 +16,7 @@
 
 source includes/utilities.sh
 
-workflow () {
+workflow() {
 	local argv=("$@")
 
 	declare -A inputs=( ["log_file"]=$(random_id)_setup.log)
