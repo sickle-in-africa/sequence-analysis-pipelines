@@ -1,6 +1,9 @@
 #
 #  CREATE INDICES - setup script for pipelines
 #
+#		this script is depricated,
+#			use setup.sh instead.
+#
 #	* given an input reference sequence, build
 #	* all necessary indexes for the different 
 #	* aliner and variant caller algorithms to

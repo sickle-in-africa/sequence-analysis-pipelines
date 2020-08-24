@@ -56,13 +56,13 @@ function check_bwa_idx() {
 }
 
 function check_gatk_dict() {
-	if [[ ! -f "${inputs["ref"]/.fasta/.dict}" ]] || [[ ! -f "${inputs["ref"]/.fa/.dict}" ]] ; then
+	if [[ ! -f "${ref_dir}/${inputs['ref_base']%.fa}.dict" ]]; then
 		echo " can't find gatk reference dictionary"
 		return 1
 	fi
 }
 function check_samtools_fai() {
-       if [[ ! -f "${inputs["ref"]/.fasta/.fai}" ]] || [[ ! -f "${inputs["ref"]/.fa/.fai}" ]]; then
+       if [[ ! -f "${ref_dir}/${inputs['ref_base']%.fa}.fai" ]]; then
           echo " can't find samtools fai index"
           return 1
        fi
