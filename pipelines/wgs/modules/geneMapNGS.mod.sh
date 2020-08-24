@@ -312,7 +312,7 @@ _aligning_reads_to_reference() {
 
 	option_string="mem \
 		-t ${inputs['threads']} \
-		${inputs['ref']} ${rds_dir}/{2} ${rds_dir}/{3} \
+		${ref_dir}/bwa.${inputs['ref_base']%.fa} ${rds_dir}/{2} ${rds_dir}/{3} \
 		-o ${sam_dir}/${inputs["cohort_id"]}.{1}.sam"
 
 	log_file_string="${inputs["log_prefix"]}${inputs["cohort_id"]}.{1}.log"

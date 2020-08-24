@@ -1,6 +1,0 @@
-{
-  "ref": "lambda-virus.fa",
-  "threads":   8,
-  "meta": "lambda-virus.txt",
-  "minlen": 40
-}

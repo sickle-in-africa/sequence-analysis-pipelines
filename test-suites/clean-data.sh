@@ -1,4 +1,5 @@
-#  clean-data
+#
+#  CLEAN DATA - maintenence script for pipeline use
 #
 #	* clean all intermediate and final TEST SUITE output data
 #

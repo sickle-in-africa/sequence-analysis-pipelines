@@ -4,49 +4,47 @@
 #	* file containing all path definitions
 #	* for directories and executable tools
 #	* used by the variant-caller package.
+#	* 
+#	* Use the <sap-path>/setup.sh script to modify this
+#	* file. Any direct changes to the file 
+#	* itself may be overwritten by setup.sh.
 #
 #	Jack Morrice
 #
 ################################################
-
-
-## project path variables
+	
+# project path variables
+ref_dir=/home/jack/Local/GeneMap/sequence-analysis-pipelines/data/references
 pro_dir=/home/jack/Local/GeneMap/sequence-analysis-pipelines
+log_dir=/home/jack/Local/GeneMap/sequence-analysis-pipelines/data/logs
+sam_dir=/home/jack/Local/GeneMap/sequence-analysis-pipelines/data/sam
+pip_dir=/home/jack/Local/GeneMap/sequence-analysis-pipelines/pipelines
+med_dir=/home/jack/Local/GeneMap/sequence-analysis-pipelines/data/media
+fqc_dir=/home/jack/Local/GeneMap/sequence-analysis-pipelines/data/fastqc
+vcf_dir=/home/jack/Local/GeneMap/sequence-analysis-pipelines/data/vcf
+rds_dir=/home/jack/Local/GeneMap/sequence-analysis-pipelines/data/reads
+tls_dir=/home/jack/Local/GeneMap/sequence-analysis-pipelines/tools
+src_dir=/home/jack/Local/GeneMap/sequence-analysis-pipelines/source
+bam_dir=/home/jack/Local/GeneMap/sequence-analysis-pipelines/data/bam
+tmp_dir=/home/jack/Local/GeneMap/sequence-analysis-pipelines/data/temp
+tst_dir=/home/jack/Local/GeneMap/sequence-analysis-pipelines/test-suites
+pin_dir=/home/jack/Local/GeneMap/sequence-analysis-pipelines/inputs
+dat_dir=/home/jack/Local/GeneMap/sequence-analysis-pipelines/data
 
-src_dir=${pro_dir}/source
-tls_dir=${pro_dir}/tools
-dat_dir=${pro_dir}/data
-sam_dir=${dat_dir}/sam
-bam_dir=${dat_dir}/bam
-vcf_dir=${dat_dir}/vcf
-rds_dir=${dat_dir}/reads
-ref_dir=${dat_dir}/references
-fqc_dir=${dat_dir}/fastqc
-tmp_dir=${dat_dir}/temp
-log_dir=${dat_dir}/logs
-med_dir=${dat_dir}/media
-
-pip_dir=${pro_dir}/pipelines
-tst_dir=${pro_dir}/test-suites
-
-## alignment & variant calling tools
-bowtie2=${tls_dir}/bowtie2-2.4.1-linux-x86_64/bowtie2
-bowtie2_build=${tls_dir}/bowtie2-2.4.1-linux-x86_64/bowtie2-build
-samtools=${tls_dir}/samtools-1.10/samtools
-bcftools=${tls_dir}/bcftools-1.10.2/bcftools
-bwa=${tls_dir}/bwa-0.7.17/bwa
-gsnap=${tls_dir}/gmap-2019-09-12/bin/gsnap
-gmap_build=${tls_dir}/gmap-2019-09-12/bin/gmap_build
-stampy=${tls_dir}/stampy-1.0.32
-isaac=${tls_dir}/Isaac4/build/bin
-gatk=${tls_dir}/gatk-4.1.7.0/gatk
-gatk3=${tls_dir}/gatk-3.3/GenomeAnalysisTK.jar
-picard=${tls_dir}/picard-2.23.1/picard.jar
-simulate=${tls_dir}/simulate-0.1/simulate.pl
-fastqc=${tls_dir}/fastqc/fastqc
-trimmomatic=${tls_dir}/trimmomatic-0.39/trimmomatic-0.39.jar
-freebayes=${tls_dir}/freebayes/bin/freebayes
-
-jaccard=${tls_dir}/jaccard/jaccard.py
-generatejson=${tls_dir}/jaccard/generate-json.py
-benchmarkR=${tls_dir}/jaccard/benchmark.R
+# tool executable paths
+trimmomatic=/home/jack/Local/GeneMap/sequence-analysis-pipelines/tools/trimmomatic-0.39/trimmomatic-0.39.jar
+gmap_build=/home/jack/Local/GeneMap/sequence-analysis-pipelines/tools/gmap-2019-09-12/bin/gmap_build
+gsnap=/home/jack/Local/GeneMap/sequence-analysis-pipelines/tools/gmap-2019-09-12/bin/gsnap
+bowtie2-build=/home/jack/Local/GeneMap/sequence-analysis-pipelines/tools/
+benchmarkR=/home/jack/Local/GeneMap/sequence-analysis-pipelines/tools/jaccard/benchmark.R
+jaccard=/home/jack/Local/GeneMap/sequence-analysis-pipelines/tools/jaccard/jaccard.py
+samtools=/home/jack/Local/GeneMap/sequence-analysis-pipelines/tools/samtools-1.10/samtools
+freebayes=/home/jack/Local/GeneMap/sequence-analysis-pipelines/tools/freebayes/bin/freebayes
+stampy=/home/jack/Local/GeneMap/sequence-analysis-pipelines/tools/stampy-1.0.32/stampy.py
+simulate=/home/jack/Local/GeneMap/sequence-analysis-pipelines/tools/simulate-0.1/simulate.pl
+bcftools=/home/jack/Local/GeneMap/sequence-analysis-pipelines/tools/bcftools-1.10.2/bcftools
+gatk=/home/jack/Local/GeneMap/sequence-analysis-pipelines/tools/gatk-4.1.7.0/gatk
+fastqc=/home/jack/Local/GeneMap/sequence-analysis-pipelines/tools/fastqc/fastqc
+bowtie2=/home/jack/Local/GeneMap/sequence-analysis-pipelines/tools/bowtie2-2.4.1-linux-x86_64/bowtie2
+generatejson=/home/jack/Local/GeneMap/sequence-analysis-pipelines/tools/jaccard/generate-json.py
+bwa=/home/jack/Local/GeneMap/sequence-analysis-pipelines/tools/bwa-0.7.17/bwa

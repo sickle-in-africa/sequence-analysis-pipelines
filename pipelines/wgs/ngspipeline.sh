@@ -14,13 +14,13 @@
 #	Hwang, K., Lee, I., Li, H. et al.
 #
 ###########################################################
-
 #!/bin/bash
 
-source ../includes/locations.sh
-source ../includes/utilities.sh
-source ${pip_dir}/modules/checkparams.mod.sh
-source ${pip_dir}/modules/ngspipeline.mod.sh
+source includes/locations.sh
+source ${pro_dir}/includes/utilities.sh
+source ${pip_dir}/wgs/modules/checkparams.mod.sh
+source ${pip_dir}/wgs/modules/ngspipeline.mod.sh
+
 
 workflow() {
 	local argv=("$@")

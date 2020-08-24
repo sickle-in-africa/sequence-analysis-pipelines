@@ -6,13 +6,12 @@
 #	Kevin Esoh
 #
 ####################################
-
 #!/usr/bin/env bash
 
-source ../includes/locations.sh
-source ../includes/utilities.sh
-source ${pip_dir}/modules/checkparams.mod.sh
-source ${pip_dir}/modules/geneMapNGS.mod.sh
+source includes/locations.sh
+source ${pro_dir}/includes/utilities.sh
+source ${pip_dir}/wgs/modules/checkparams.mod.sh
+source ${pip_dir}/wgs/modules/geneMapNGS.mod.sh
 
 
 workflow() {

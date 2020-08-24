@@ -34,7 +34,7 @@ align_reads_to_reference() {
 			-M \
 			-t ${inputs['threads']} \
 			-R "@RG\tID:${inputs['sample_id']}\tSM:${inputs['sample_id']}\tPL:Illumina" \
-			${inputs['idx']} ${inputs['fastq1']} ${inputs['fastq2']} \
+			${ref_dir}/bwa.${inputs['ref_base']%.fa} ${inputs['fastq1']} ${inputs['fastq2']} \
 			| ${samtools} view \
 				-bS - \
 				| ${samtools} sort \
@@ -95,9 +95,36 @@ align_reads_to_reference() {
 		ln -s ${work_dir}/${inputs['prefix']}/Projects/default/default/sorted.bam ${work_dir}/${inputs['prefix']}/${inputs['prefix']}.bam
 		ln -s ${work_dir}/${inputs['prefix']}/Projects/default/default/sorted.bam.bai ${work_dir}/${inputs['prefix']}/${inputs['prefix']}.bam.bai
 	
-	elif [ "${inputs['aligner_id']}" = "stampy" ];then
-		python ${stampy}/stampy.py -g ${!inputs['idx']} -h ${!inputs['idx']} -t${inputs['threads']} --readgroup=ID:${inputs['sample_id']},SM:${inputs['sample_id']},PL:Illumina --bamkeepgoodreads -M ${bwa_bam} | ${samtools}/samtools view -bS - | ${samtools}/samtools sort -@ ${inputs['threads']} -m ${inputs['maxmem']} -o ${work_dir}/${inputs['prefix']}/${inputs['prefix']}.bam -T ${tmp_dir}/${inputs['prefix']}
+	elif [ "${inputs['aligner_id']}" = "stampy" ]; then
+
+		${bwa} mem \
+			-M \
+			-t ${inputs['threads']} \
+			-R "@RG\tID:${inputs['sample_id']}\tSM:${inputs['sample_id']}\tPL:Illumina" \
+			${ref_dir}/bwa.${inputs['ref_base']%.fa} ${inputs['fastq1']} ${inputs['fastq2']} \
+			| ${samtools} view \
+				-bS - \
+				| ${samtools} sort \
+					-@ ${inputs['threads']} \
+					-m ${inputs['maxmem']} \
+					-o ${bam_dir}/${inputs['prefix']}.bwa.bam \
+					-T ${tmp_dir}
+
+		python ${stampy} \
+			-g ${ref_dir}/stammpy.${inputs['ref_base']%.fa} \
+			-h ${ref_dir}/stammpy.${inputs['ref_base']%.fa} \
+			-t${inputs['threads']} \
+			--readgroup=ID:${inputs['sample_id']},SM:${inputs['sample_id']},PL:Illumina \
+			--bamkeepgoodreads -M ${bam_dir}/${inputs['prefix']}.bwa.bam \
+			| ${samtools} view \
+				-bS - \
+				| ${samtools} sort \
+					-@ ${inputs['threads']} \
+					-m ${inputs['maxmem']} \
+					-o ${bam_dir}/${inputs['prefix']}.bam \
+					-T ${tmp_dir}
 	
+	# novoalign is not free, so this option is depricated
 	elif [ "${inputs['aligner_id']}" = "novoalign" ];then
 		${novoalign}/novoalign -c ${inputs['threads']} --mmapoff -t 20,3 --softclip 20 -d ${!inputs['idx']} -f ${inputs['fastq1']} ${inputs['fastq2']} -i 350 50 -k -o SAM "@RG\tID:${inputs['sample_id']}\tSM:${inputs['sample_id']}\tPL:Illumina" | ${samtools}/samtools view -Sb - | ${samtools}/samtools sort -@ ${inputs['threads']} -m 4G -o ${work_dir}/${inputs['prefix']}/${inputs['prefix']}.bam -T ${tmp_dir}/${inputs['prefix']}
 	
@@ -234,11 +261,6 @@ align_reads_to_reference() {
 #	* ref_id
 #
 call_variants() {
-	local \
-		aligner_id=$1 \
-		sw_id=$2 \
-		bam=$3 \
-		ref_id=$4
 
 	if [[ "${inputs['recal_realign_on']}" = "no" ]]; then
 		local input_bam_file=${bam_dir}/${inputs['prefix']}.leftalignindels.bam
@@ -294,10 +316,17 @@ call_variants() {
 		cd ${work_dir}/${inputs['prefix']}/${inputs['sample_id']}_${bam_type} && make -j ${inputs['threads']}
 		ln -s ${work_dir}/${inputs['prefix']}/${inputs['sample_id']}_${bam_type}/results/* ${work_dir}/${inputs['prefix']}
 		echo "[${inputs['prefix']}][$(date "+%F %T")] DONE calling variants with ${inputs['prefix']}" >> ${inputs['log_file']}
+	
 	elif [ "${inputs['caller_id']}" = "samtools" ];then
 		echo "[${inputs['prefix']}][$(date "+%F %T")] STARTED calling variants with ${inputs['prefix']}" >> ${inputs['log_file']}
-		${samtools}/samtools mpileup -ugf ${b37_fasta} ${bam} | ${bcftools}/bcftools call -vmO v -o ${work_dir}/${inputs['prefix']}/${inputs['prefix']}_${bam_type}.vcf
+		${samtools} mpileup \
+			-ugf ${inputs['ref']} \
+			$input_bam_file \
+			| ${bcftools} call \
+				-vmO v \
+				-o ${vcf_dir}/${inputs['prefix']}.vcf
 		echo "[${inputs['prefix']}][$(date "+%F %T")] DONE calling variants with ${inputs['prefix']}" >> ${inputs['log_file']}
+	
 	elif [ "${inputs['caller_id']}" = "varscan" ];then
 		echo "[${inputs['prefix']}][$(date "+%F %T")] STARTED calling variants with ${inputs['prefix']}" >> ${inputs['log_file']}
 		${samtools}/samtools mpileup -f ${b37_fasta} ${bam} | java -Xmx10g -XX:ParallelGCThreads=${inputs['threads']} -Djava.io.tmpdir=${tmp_dir} -jar ${varscan}/VarScan.v2.3.7.jar mpileup2cns --output-vcf 1 --variants > ${work_dir}/${inputs['prefix']}/${inputs['prefix']}_${bam_type}.vcf

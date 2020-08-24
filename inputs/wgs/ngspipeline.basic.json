@@ -1,6 +1,6 @@
 {
-  "aligner_id": "bowtie2",
-  "caller_id": "freebayes",
+  "aligner_id": "stampy",
+  "caller_id": "samtools",
   "ref_base": "lambda-virus.fa",
   "sample_id": "c_1.s_1",
   "fastq1_base": "c_1.s_1.trimmed_1P.fq.gz",

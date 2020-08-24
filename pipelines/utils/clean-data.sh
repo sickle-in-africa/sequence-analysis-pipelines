@@ -8,8 +8,8 @@
 
 #!/bin/bash
 
-source ../includes/locations.sh
-source ../includes/utilities.sh
+source includes/locations.sh
+source ${pro_dir}/includes/utilities.sh
 
 workflow() { 
 	local argv=("$@")

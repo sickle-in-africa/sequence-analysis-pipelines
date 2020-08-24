@@ -32,6 +32,8 @@ workflow() {
 
 	custom_call build_bowtie2_index "building bowtie2 aligner index..."
 
+	custom_call build_stampy_index_and_hash "building index and hash for the stampy aligner..."
+
 	custom_call build_reference_index "building reference index..."
 
 	custom_call build_reference_dict "building reference dictionary"
@@ -69,9 +71,9 @@ build_bwa_index() {
 	# 1. 'is' is for short sequences (like virus genomes)
 	# 2. 'bwtsw' is for long sequences (like human genomes)
 
-	if [[ ! -f "${ref_dir}/bwa.${inputs['ref_base']}.amb" ]]; then
+	if [[ ! -f "${ref_dir}/bwa.${inputs['ref_base']%.fa}.amb" ]]; then
 		$bwa index \
-			-p ${ref_dir}/bwa.${inputs['ref_base']} \
+			-p ${ref_dir}/bwa.${inputs['ref_base']%.fa} \
 			-a is \
 			${inputs['ref']}
 	else
@@ -102,6 +104,28 @@ build_bowtie2_index() {
 			${ref_dir}/bowtie2.${inputs['ref_base']%.fa}
 	else
 		echo "skipping bowtie2 index build as index already exists"
+	fi
+
+}
+
+build_stampy_index_and_hash() {
+
+	# build index
+	if [[ ! -f ${ref_dir}/stammpy.${inputs['ref_base']%.fa}.stidx ]]; then
+		python $stampy \
+			-G ${ref_dir}/stammpy.${inputs['ref_base']%.fa} \
+			${inputs['ref']}
+	else
+		echo "skipping stampy index build as index exists"
+	fi
+
+	# build hash
+	if [[ ! -f ${ref_dir}/stammpy.${inputs['ref_base']%.fa}.sthash ]]; then
+		python $stampy \
+			-g ${ref_dir}/stammpy.${inputs['ref_base']%.fa} \
+			-H ${ref_dir}/stammpy.${inputs['ref_base']%.fa}
+	else
+		echo "skipping stampy hash build as index exists"
 	fi
 
 }

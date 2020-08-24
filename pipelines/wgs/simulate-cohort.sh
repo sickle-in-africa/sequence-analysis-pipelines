@@ -9,10 +9,10 @@
 ###################################################
 #!/bin/bash
 
-source ../includes/locations.sh
-source ../includes/utilities.sh
+source includes/locations.sh
+source ${pro_dir}/includes/utilities.sh
+source ${pip_dir}/wgs/modules/checkparams.mod.sh
 
-source ${pip_dir}/modules/checkparams.mod.sh
 
 workflow() { 
 	local argv=("$@")
