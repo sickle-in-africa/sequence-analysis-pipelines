@@ -67,24 +67,21 @@ initialize_inputs_hash() {
 
 simulate_cohort_reads() {
 
-	_mutate_reference || return 1
+	custom_call_2 _mutate_reference '  mutating the reference...' || return 1
 
-	_generate_reads || return 1
+	custom_call_2 _generate_reads '  simulating reads...' || return 1
 
-	_sort_gvcf_file 'truth' || return 1
+	custom_call_2 _sort_gvcf_file '  sorting truth gvcf files...' truth || return 1
 }
 
 _mutate_reference() {
 
-	printf '  mutating the reference...'
 	$simulate MutateReference \
 		--input_ref ${inputs["ref"]} \
 		--output_ref ${inputs['tmp_prefix']}${inputs["cohort_id"]}.fa \
 		--input_json ${inputs["input_json"]} \
 		--output_vcf ${vcf_dir}/${inputs["cohort_id"]}.truth.g.vcf \
-		&>> ${inputs["log_prefix"]}${inputs["cohort_id"]}.log \
-		|| { echo "...failed!"; return 1; } \
-		&& echo "...done."
+		&>> ${inputs["log_prefix"]}${inputs["cohort_id"]}.log
 }
 
 _generate_reads() {
@@ -95,7 +92,9 @@ _generate_reads() {
 		option_string \
 		log_file_string
 
-	echo "# sample file for cohort: ${inputs["cohort_id"]}" > ${rds_dir}/${inputs["cohort_id"]}.txt
+	# 1. write sample id list file
+
+	echo "# sample file for cohort: ${inputs["cohort_id"]}" > ${rds_dir}/${inputs["cohort_id"]}.samples.list
 	for s in $(seq 1 1 ${inputs["n_samples"]}); do
 		prefix="${inputs["cohort_id"]}.s_$s"
 
@@ -103,37 +102,44 @@ _generate_reads() {
 		sample_log_file=${inputs["log_prefix"]}${prefix}.log
 		[[ -s $sample_log_file ]] || > $sample_log_file
 
-		echo -e "${prefix}.raw_1P.fq\t${prefix}.raw_2P.fq\ts_$s\tILLUMINA" >> ${rds_dir}/${inputs["cohort_id"]}.txt
+		echo -e "s_$s\t${prefix}.raw_1P.fq.gz\t${prefix}.raw_2P.fq.gz\tILLUMINA" >> ${rds_dir}/${inputs["cohort_id"]}.samples.list
 	done
+
+	# 2. generate reads files
 
 	option_string="GenerateReads \
 		--input_ref ${inputs['tmp_prefix']}${inputs["cohort_id"]}.fa \
-		--reads_prefix "${rds_dir}/"${inputs["cohort_id"]}.{3}.raw \
+		--reads_prefix "${rds_dir}/"${inputs["cohort_id"]}.{1}.raw \
 		--input_json ${inputs["input_json"]}"
 
-	log_file_string="${inputs["log_prefix"]}${inputs["cohort_id"]}.{3}.log"
+	log_file_string="${inputs["log_prefix"]}${inputs["cohort_id"]}.{1}.log"
 
-	printf "  simulating reads..."
 	run_in_parallel \
 		$simulate \
-		${rds_dir}/${inputs["cohort_id"]}.txt \
+		${rds_dir}/${inputs["cohort_id"]}.samples.list \
 		"${option_string}" \
 		${inputs["threads"]} \
-		"${log_file_string}" \
-		|| { echo "...failed!"; return 1; } \
-		&& { echo "...done."; }
+		"${log_file_string}"
+
+	# 3. zip reads files
+
+	run_in_parallel \
+		gzip \
+		${rds_dir}/${inputs["cohort_id"]}.samples.list \
+		"-f \
+			${rds_dir}/${inputs['cohort_id']}.{1}.raw_1P.fq \
+			${rds_dir}/${inputs['cohort_id']}.{1}.raw_2P.fq" \
+		${inputs["threads"]} \
+		"${log_file_string}" 
 }
 
 _sort_gvcf_file() {
 	local input_gvcf_stage=$1
 
-	printf '  sorting truth gvcf files...'
 	$bcftools sort \
 		${vcf_dir}/${inputs["cohort_id"]}.${input_gvcf_stage}.g.vcf \
 		-o ${vcf_dir}/${inputs["cohort_id"]}.${input_gvcf_stage}.sorted.g.vcf \
-		&>> ${inputs["log_prefix"]}${inputs["cohort_id"]}.log \
-		|| { echo "...failed!"; return 1; } \
-		&& { echo "...done."; }
+		&>> ${inputs["log_prefix"]}${inputs["cohort_id"]}.log
 }
 
 

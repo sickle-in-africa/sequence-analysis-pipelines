@@ -70,7 +70,7 @@ initialize_inputs_hash() {
 	value_from_json ${inputs["input_json"]} '.cohort_id'   inputs["cohort_id"]
 	value_from_json ${inputs["input_json"]} '.meta_base'   inputs["meta_base"]
 	if [[ ! "${inputs["cohort_id"]}" == NULL ]]; then
-		inputs["meta"]=${rds_dir}/${inputs["cohort_id"]}.txt
+		inputs["meta"]=${rds_dir}/${inputs["cohort_id"]}.samples.list
 	elif [[ ! "${inputs["meta_base"]}" == NULL ]]; then
 		inputs["meta"]=${rds_dir}/${inputs["meta_base"]}
 	fi
@@ -145,9 +145,9 @@ function fq() {
 	option_string="\
 		-t ${inputs["threads"]} \
 		-o ${fqc_dir}/ \
-		${rds_dir}/{1} ${rds_dir}/{2}"
+		${rds_dir}/{2} ${rds_dir}/{3}"
 
-	log_file_string="${inputs["log_prefix"]}${inputs["cohort_id"]}.{3}.log"
+	log_file_string="${inputs["log_prefix"]}${inputs["cohort_id"]}.{1}.log"
 
 	printf "  checking fastq quality with FASTQC..."
 	run_in_parallel \
@@ -157,7 +157,7 @@ function fq() {
 		"${inputs["threads"]}" \
 		"${log_file_string}" \
 		|| { echo "...failed!"; return 1; } \
-		&& { echo "...done."; return 0; }
+		&& { echo "...done." }
 }
 
 #  trim()
@@ -178,14 +178,14 @@ function trim() {
 
 	option_string="-jar ${trimmomatic} PE \
 		-threads ${inputs["threads"]} \
-		-basein ${rds_dir}/${inputs["cohort_id"]}.{3}.raw_1P.fq \
-		-baseout ${rds_dir}/${inputs["cohort_id"]}.{3}.trimmed.fq \
+		-basein ${rds_dir}/${inputs["cohort_id"]}.{1}.raw_1P.fq.gz \
+		-baseout ${rds_dir}/${inputs["cohort_id"]}.{1}.trimmed.fq.gz \
 		LEADING:${inputs["trim_leadx"]} \
 		TRAILING:${inputs["trim_trailx"]} \
 		SLIDINGWINDOW:5:${inputs["trim_av_qual_min"]} \
 		MINLEN:${inputs["trim_minlen"]}"
 
-	log_file_string="${inputs["log_prefix"]}${inputs["cohort_id"]}.{3}.log"
+	log_file_string="${inputs["log_prefix"]}${inputs["cohort_id"]}.{1}.log"
 
 	printf "  trimming reads with trimmomatic..."
 	run_in_parallel \
@@ -278,8 +278,7 @@ function gmap() {
 _converting_fastq_to_sam() {
 	local \
 		option_string \
-		log_file_string \
-		status=0
+		log_file_string
 
 	option_string="FastqToSam \
 		-F1 ${rds_dir}/{2} \
@@ -300,8 +299,6 @@ _converting_fastq_to_sam() {
 		"${log_file_string}" \
 		|| { echo "...failed!"; return 1; } \
 		&& { echo "...done."; }
-
-	return $status
 }
 
 _aligning_reads_to_reference() {
@@ -358,6 +355,7 @@ _converting_sam_to_bam() {
 _sorting_bam_files() {
 	local \
 		option_string \
+		log_file_string \
 		status=0
 
 	option_string="sort \
@@ -367,7 +365,7 @@ _sorting_bam_files() {
 		-o ${bam_dir}/${inputs["cohort_id"]}.{3}.sorted.bam \
 		${bam_dir}/${inputs["cohort_id"]}.{3}.bam"
 
-	log_file_sting="${inputs["log_prefix"]}${inputs["cohort_id"]}.{3}.log"
+	log_file_string="${inputs["log_prefix"]}${inputs["cohort_id"]}.{3}.log"
 
 	printf "  sorting bam files..."
 	run_in_parallel \
@@ -375,7 +373,7 @@ _sorting_bam_files() {
 		"${inputs["meta"]}" \
 		"${option_string}" \
 		"${inputs["threads"]}" \
-		"${log_file_sting}" \
+		"${log_file_string}" \
 		|| { echo "...failed!"; return 1; } \
 		&& { echo "...done."; }
 
@@ -968,9 +966,9 @@ function check_sample() {
 	while IFS= read -r line; do
 		if [[ ! $line == "#"* ]]; then
 			line_array=( $line )
-			sample_id=${line_array[2]}
-			[[ -s ${rds_dir}/"${line_array[0]}" ]] || { echo "Error: ${line_array[0]} does not exist or is empty"; return 1; }
+			sample_id=${line_array[0]}
 			[[ -s ${rds_dir}/"${line_array[1]}" ]] || { echo "Error: ${line_array[0]} does not exist or is empty"; return 1; }
+			[[ -s ${rds_dir}/"${line_array[2]}" ]] || { echo "Error: ${line_array[0]} does not exist or is empty"; return 1; }
 
 
 		fi
@@ -1090,7 +1088,7 @@ function prep_reads_list() {
 	while read -r line; do
 		[[ "$line" == "#"* ]] && continue
 		line_array=( $line )
-		sample_id=${line_array[2]}
+		sample_id=${line_array[0]}
 		reads_prefix="${inputs[cohort_id]}.${sample_id}.${input_reads_stage}"
 		platform=${line_array[3]}
 

@@ -38,14 +38,17 @@ custom_call_2() {
 	# call tasks above with messages
 	# and return 1 on errors
 	local \
-		msg=$1 \
-		routine=$2
-	shift; shift; shift
+		routine=$1 \
+		msg=$2
+	shift; shift
  
  	printf "$msg"
-	$routine "$@" \
-		|| { printf "...failed!"; echo; return 1; } \
-		&& { printf "...done."; echo; return 0; }
+	if $routine "$@" ; then
+		echo "...done"
+	else
+		echo "...failed!"
+		return 1
+	fi
 }
 
 value_from_json() {
@@ -83,18 +86,46 @@ run_in_parallel() {
 		parameter_file=$2 \
 		option_string=$3 \
 		n_threads=$4 \
-		output_string=$5 \
-		status=0
+		output_string=$5 
+
+	printf "[${inputs['prefix']}][$(date "+%F %T")] STARTED ${routine} over ${n_threads} threads\n" >> $output_string
 
 	sed '/^#/d' ${parameter_file} | \
 		parallel \
 			--col-sep '\t' \
 			echo -e "${option_string} \&\>\> ${output_string}" | \
 			xargs \
+				-0 \
 				-I input \
 				-P $n_threads \
 				bash -c "$routine input" \
 				|| return 1
+
+	printf "[${inputs['prefix']}][$(date "+%F %T")] DONE ${routine}\n\n" >> ${output_string}
+}
+
+run_gatk_in_parallel() {
+	local \
+		java_options=$1 \
+		parameter_file=$2 \
+		option_string=$3 \
+		n_threads=$4 \
+		output_string=$5 
+
+	printf "[${inputs['prefix']}][$(date "+%F %T")] STARTED ${routine} over ${n_threads} threads\n" >> $output_string
+
+	sed '/^#/d' ${parameter_file} | \
+		parallel \
+			--col-sep '\t' \
+			echo -e "${option_string} \&\>\> ${output_string}" | \
+			xargs \
+				-0 \
+				-I input \
+				-P $n_threads \
+				bash -c "$gatk --java-options \"${java_options}\" input" \
+				|| return 1
+
+	printf "[${inputs['prefix']}][$(date "+%F %T")] DONE ${routine}\n\n" >> ${output_string}
 }
 
 set_up_tmps_and_logs() {
@@ -111,12 +142,13 @@ set_up_tmps_and_logs() {
 	fi
 
 	if [[ -z ${inputs["tmp_prefix"]} ]]; then
-		inputs["tmp_prefix"]=${tmp_dir}/${id}/ && mkdir ${inputs['tmp_prefix']}
+		inputs["tmp_prefix"]=${tmp_dir}/${id}_
 		echo "==> temp. files will be saved to ${inputs["tmp_prefix"]}"
 	fi
 }
 
 clean_temp() {
-	rm ${inputs['tmp_prefix']}* 2> /dev/null
-	rm -r ${inputs['tmp_prefix']} 2> /dev/null
+	[ ! -z ${inputs['tmp_prefix']} ] && rm ${inputs['tmp_prefix']}* 2> /dev/null
+
+	return 0
 }

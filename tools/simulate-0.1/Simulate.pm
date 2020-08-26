@@ -151,7 +151,7 @@ sub print_reference_sequence {
 
 	open(OREF, ">$inputs->{out_ref_file}") || die;
 
-	print OREF ">gi|9626243|ref|NC_001416.1| $inputs->{cohort_id}, complete genome\n";
+	print OREF ">NC_001416.1 $inputs->{cohort_id}, complete genome\n";
 
 	print OREF "$_\n" for unpack '(A70)*', $$rf;
 
@@ -174,7 +174,7 @@ sub mutate_reference {
 		"##reference=$inputs->{ref_file}\n",
 		'##FILTER=<ID=none,Description="No filters applied">',"\n",
 		"##contig=<",
-			"ID=gi|9626243|ref|NC_001416.1|,",
+			"ID=NC_001416.1,",
 			"length=", length($$rf), ",",
 			"assembly=B36,",
 			"md5=f126cdf8a6e0c7f379d618ff66beb2da,",
@@ -192,7 +192,7 @@ sub mutate_reference {
 				$nsnp++ if substr($$rf, $_, 1) ne $oldc;
 
 				if (substr($$rf, $_, 1) ne $oldc) {
-					my $chrom = "gi|9626243|ref|NC_001416.1|";
+					my $chrom = "NC_001416.1";
 					my $pos = $_ + 1;
 					my $id  = ".";
 					my $ref = $oldc;
@@ -236,7 +236,7 @@ sub mutate_reference {
 				}
 				if($indel{$rfi}{ty} eq "ins") {
 					# insert short DNA sequence
-					my $chrom = "gi|9626243|ref|NC_001416.1|";
+					my $chrom = "NC_001416.1";
 					my $pos = $rfi;
 					my $id  = ".";
 					my $ref = substr($$rf, $pos-1, 1);
@@ -249,7 +249,7 @@ sub mutate_reference {
 					print TVCF "$chrom\t$pos\t$id\t$ref\t$alt\t$qual\t$filter\t$info\n";
 				} else {
 					# make small deletion
-					my $chrom = "gi|9626243|ref|NC_001416.1|";
+					my $chrom = "NC_001416.1";
 					my $pos = $rfi;
 					my $id  = ".";
 					my $ref = substr($$rf, $pos-1, $indel{$rfi}{len}+1);

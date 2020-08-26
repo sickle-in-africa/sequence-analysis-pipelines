@@ -19,8 +19,8 @@
 source includes/locations.sh
 source ${pro_dir}/includes/utilities.sh
 source ${pip_dir}/wgs/modules/checkparams.mod.sh
-source ${pip_dir}/wgs/modules/ngspipeline.mod.sh
-
+source ${pip_dir}/wgs/modules/ngspipeline-align.mod.sh
+source ${pip_dir}/wgs/modules/ngspipeline-vcall.mod.sh
 
 workflow() {
 	local argv=("$@")
@@ -31,9 +31,11 @@ workflow() {
 
 	custom_call initialize_inputs_hash "initializing pipeline input parameter values..."
 
-	custom_call align_reads_to_reference "aligning reads to the reference with ${inputs['aligner_id']}..."
+	custom_call align_reads_to_reference "aligning reads to the reference..."
 
-	custom_call call_variants "calling variants with ${inputs['caller_id']}..."
+	custom_call call_variants "calling variants..."
+
+	custom_call clean_temp 'cleaning temporary files...'
 }
 
 #
@@ -49,6 +51,7 @@ initialize_inputs_hash() {
 	inputs['caller_id']=NULL;				# name of the chosen variant caller tool
 	inputs['ref_base']=NULL;			# basename of the reference sequence file
 	inputs['sample_id']=NULL;			# prefix for outputs
+	inputs['cohort_id']=NULL;			# prefix for outputs
 	inputs['fastq1']=NULL;				# input fastq file (1)
 	inputs['fastq2']=NULL;				# input fastq file (2)
 	inputs['threads']=1;				# number of threads to parallelize over
@@ -59,21 +62,23 @@ initialize_inputs_hash() {
 	# 2. update parameters with arguments from the input json file
 	printf '  updating with arguments from input json file...'
 	_update_input_value_from_json 'aligner_id'
-	_update_input_value_from_json '.caller_id'
-	_update_input_value_from_json '.ref_base'
-	_update_input_value_from_json '.sample_id'
-	_update_input_value_from_json '.fastq1_base'
-	_update_input_value_from_json '.fastq2_base'
-	_update_input_value_from_json '.threads'
-	_update_input_value_from_json '.maxmem'
-	_update_input_value_from_json '.recal_realign_on'
+	_update_input_value_from_json 'caller_id'
+	_update_input_value_from_json 'ref_base'
+	_update_input_value_from_json 'sample_id'
+	_update_input_value_from_json 'cohort_id'
+	_update_input_value_from_json 'fastq1_base'
+	_update_input_value_from_json 'fastq2_base'
+	_update_input_value_from_json 'threads'
+	_update_input_value_from_json 'maxmem'
+	_update_input_value_from_json 'recal_realign_on'
 
 	inputs['ref']=${ref_dir}/${inputs['ref_base']}
 	inputs["fastq1"]=${rds_dir}/${inputs["fastq1_base"]}
 	inputs["fastq2"]=${rds_dir}/${inputs["fastq2_base"]}
-	inputs['prefix']="${inputs['sample_id']}.${inputs['aligner_id']}.${inputs['caller_id']}.${inputs['ref_base']%.fa}";	# prefix for output files
+	inputs['prefix']="${inputs['cohort_id']}.${inputs['aligner_id']}.${inputs['caller_id']}.${inputs['ref_base']%.fa}";	# prefix for output files
 	inputs['log_file']="${log_dir}/${inputs['prefix']}.log";							# output lof file path 
-	inputs['idx']="${ref_dir}/${inputs['aligner_id']}.${inputs['ref_base']}";				# aligner index file
+	inputs['idx']="${ref_dir}/${inputs['aligner_id']}.${inputs['ref_base']}";			# aligner index file
+	inputs['samples_list']=${rds_dir}/${inputs['cohort_id']}.samples.list
 	[[ $status == 0 ]] && echo '...done'
 
 	# 3. check that inputs make sense
@@ -85,7 +90,7 @@ initialize_inputs_hash() {
 	[[ $status == 0 ]] && echo '...done'
 
 	# 4. set up output logging and temporary files
-	#set_up_tmps_and_logs || { echo 'seting up temp and log directory failed'; status=1; }
+	set_up_tmps_and_logs || { echo 'seting up temp and log directory failed'; status=1; }
 }
 
 _update_input_value_from_json() {
