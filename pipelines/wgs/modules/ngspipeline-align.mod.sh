@@ -50,99 +50,19 @@ align_reads_to_reference() {
 #	* and not to be used outside this module. 
 #
 _align_cohort_reads() {
-	cohort_call _align_sample_reads "mapping reads with ${inputs['aligner_id']}" || return 1
-}
-
-_mark_cohort_duplicates() {
-	local \
-		java_options \
-		option_string \
-		log_file_string
-
-	java_options="-Xmx${inputs['maxmem']}	\
-			-XX:ParallelGCThreads=${inputs['threads']} \
-			-Djava.io.tmpdir=${tmp_dir}/${inputs['prefix']}"
-
-	option_string="\
-		MarkDuplicates \
-			-I ${bam_dir}/${inputs['prefix']}.{1}.bam \
-			-REMOVE_DUPLICATES true \
-			-VALIDATION_STRINGENCY LENIENT \
-			-AS true \
-			-OUTPUT ${bam_dir}/${inputs['prefix']}.{1}.dedup.bam \
-			-METRICS_FILE ${bam_dir}/${inputs['prefix']}.{1}.dedup.log \
-			-CREATE_INDEX true"
-
-	log_file_string="${inputs["log_prefix"]}${inputs["cohort_id"]}.{1}.log"
-
-	run_gatk_in_parallel \
-		"${java_options}" \
-		${inputs['samples_list']} \
-		"${option_string}" \
-		${inputs['threads']} \
-		${log_file_string}
-
-}
-
-_fix_cohort_mate_info() {
-	cohort_call _fix_sample_mate_info "fixing mate information in sample sequence" || return 1
-}
-
-_left_align_cohort_indels() {
-	local input_bam_stage=$1
-	cohort_call _left_align_sample_indels "left-aligning indels in sample sequence" $input_bam_stage || return 1
-}
-
-_perform_cohort_realignments() {
-	cohort_call _perform_sample_realignments "realigning sample sequences with BaseRecalibrator etc" || return 1
-}
-
-cohort_call() {
-	local \
-		routine=$1 \
-		log_msg=$2 \
-		log_file_string \
-		line line_arr \
-		sample_id \
-		fastq1 fastq2
-		shift; shift
-
-	while read -r line; do
-		[[ $line == "#"* ]] && continue
-		line_arr=($line)
-		sample_id=${line_arr[0]}
-		fastq1=${rds_dir}/${line_arr[1]}
-		fastq2=${rds_dir}/${line_arr[2]}
-
-		log_file_string="${inputs['log_prefix']}${inputs['cohort_id']}.${sample_id}.log"
-
-		echo "[${inputs['prefix']}][$(date "+%F %T")] STARTED ${log_msg}" >> $log_file_string
-
-		$routine $log_file_string $sample_id $fastq1 $fastq2 "$@" || return 1
-
-		echo "[${inputs['prefix']}][$(date "+%F %T")] DONE ${log_msg}" >> ${inputs['log_prefix']}${inputs['cohort_id']}.${sample_id}.log
-
-	done < ${inputs['samples_list']}
-}
-
-_align_sample_reads() {
-	local \
-		log_file_string=$1 \
-		sample_id=$2 \
-		fastq1=$3 \
-		fastq2=$4
 
 	if [ ${inputs['aligner_id']} = "bwa" ]; then
 
-		_align_with_bwa $log_file_string $sample_id $fastq1 $fastq2 || return 1
+		_align_with_bwa || return 1
+		_add_read_group_info || return 1
 
 	elif [ ${inputs['aligner_id']} = "gsnap" ]; then
 
-		_align_with_gsnap $log_file_string $sample_id $fastq1 $fastq2 || return 1
+		_align_with_gsnap || return 1
 	
 	elif [ ${inputs['aligner_id']} = "bowtie2" ]; then
 
-		_align_with_bowtie2 $log_file_string $sample_id $fastq1 $fastq2 || return 1
+		_align_with_bowtie2 || return 1
 	
 	elif [ "${inputs['aligner_id']}" = "soap2" ];then
 		${soap2}/soap -p ${inputs['threads']} -a ${inputs['fastq1']} -b ${inputs['fastq2']} -D ${!inputs['idx']} -o ${work_dir}/${inputs['prefix']}/${inputs['prefix']}_pe_output -2 ${work_dir}/${inputs['prefix']}/${inputs['prefix']}_se_output -u ${work_dir}/${inputs['prefix']}/${inputs['prefix']}_unmapped_output
@@ -160,69 +80,274 @@ _align_sample_reads() {
 	
 	elif [ "${inputs['aligner_id']}" = "stampy" ]; then
 
-		_align_with_stampy $log_file_string $sample_id $fastq1 $fastq2 || return 1
+		_align_with_stampy || return 1
 	
 	# novoalign is not free, so this option is depricated:
 	elif [ "${inputs['aligner_id']}" = "novoalign" ];then
 		${novoalign}/novoalign -c ${inputs['threads']} --mmapoff -t 20,3 --softclip 20 -d ${!inputs['idx']} -f ${inputs['fastq1']} ${inputs['fastq2']} -i 350 50 -k -o SAM "@RG\tID:${inputs['sample_id']}\tSM:${inputs['sample_id']}\tPL:Illumina" | ${samtools}/samtools view -Sb - | ${samtools}/samtools sort -@ ${inputs['threads']} -m 4G -o ${work_dir}/${inputs['prefix']}/${inputs['prefix']}.bam -T ${tmp_dir}/${inputs['prefix']}
 	
 	fi
+
 }
 
 _align_with_bwa() {
-	local 
-		log_file_string=$1 \
-		sample_id=$2 \
-		fastq1=$3 \
-		fastq2=$4
+	local \
+		align_options \
+		sort_options \
+		log_file_string
 
-	${bwa} mem \
+	log_file_string="${inputs["log_prefix"]}${inputs["cohort_id"]}.{1}.log"
+
+	align_options="mem \
 		-M \
 		-t ${inputs['threads']} \
-		-R "@RG\tID:${sample_id}\tSM:${sample_id}\tPL:Illumina" \
-		${ref_dir}/bwa.${inputs['ref_base']%.fa} ${fastq1} ${fastq2} \
-		2>> $log_file_string \
-		| ${samtools} view \
-			-bS - \
-			2>> $log_file_string \
-			| ${samtools} sort \
-				-@ ${inputs['threads']} \
-				-m ${inputs['maxmem']} \
-				-o ${bam_dir}/${inputs['prefix']}.${sample_id}.bam \
-				-T ${tmp_dir} \
-				2>> $log_file_string
+		${ref_dir}/bwa.${inputs['ref_base']%.fa} \
+		${rds_dir}/${inputs['cohort_id']}.{1}.raw_1P.fq.gz \
+		${rds_dir}/${inputs['cohort_id']}.{1}.raw_2P.fq.gz"
+
+	sort_options="\
+		-@ ${inputs['threads']} \
+		-m ${inputs['maxmem']} \
+		-o ${bam_dir}/${inputs['prefix']}.{1}.norgs.bam \
+		-T ${tmp_dir}"
+
+	run_align_in_parallel \
+		$bwa \
+		${inputs['samples_list']} \
+		"${align_options}" \
+		${inputs['threads']} \
+		$log_file_string \
+		"$sort_options" || return 1
+}
+
+_add_read_group_info() {
+	
+	# this function is useful when we use bwa
+
+	local \
+		java_options \
+		option_string \
+		log_file_string
+
+	java_options="-Xmx${inputs['maxmem']}	\
+			-XX:ParallelGCThreads=${inputs['threads']} \
+			-Djava.io.tmpdir=${tmp_dir}/${inputs['prefix']}"
+
+	option_string="AddOrReplaceReadGroups \
+		-I ${bam_dir}/${inputs['prefix']}.{1}.norgs.bam \
+		-O ${bam_dir}/${inputs['prefix']}.{1}.bam \
+		-SM {1} \
+		-PL {4} \
+		-PU {1} \
+		-LB {1}"
+
+	log_file_string="${inputs["log_prefix"]}${inputs["cohort_id"]}.{1}.log"
+
+	printf '..adding read group info...'
+	run_gatk_in_parallel \
+		"$java_options" \
+		${inputs['samples_list']} \
+		"${option_string}" \
+		${inputs["threads"]} \
+		"${log_file_string}" || return 1
 }
 
 _align_with_gsnap() {
-	local 
-		log_file_string=$1 \
-		sample_id=$2 \
-		fastq1=$3 \
-		fastq2=$4
+	local \
+		align_options \
+		sort_options \
+		log_file_string
 
-	${gsnap} \
-		--gunzip \
+	log_file_string="${inputs["log_prefix"]}${inputs["cohort_id"]}.{1}.log"
+
+	align_options="--gunzip \
 		--dir ${ref_dir} \
 		--db gmap.${inputs['ref_base']%.fa} \
 		-t ${inputs['threads']} \
 		-A sam \
 		--npath=1 \
 		-B 5 \
-		--read-group-id ${inputs['sample_id']} \
-		--read-group-name ${inputs['sample_id']} \
-		--read-group-platform Illumina \
-		${inputs['fastq1']} ${inputs['fastq2']} \
-		2>> $log_file_string \
-		| ${samtools} view \
-			-bS - \
-			2>> $log_file_string \
-			| ${samtools} sort \
-				-@ ${inputs['threads']} \
-				-m ${inputs['maxmem']} \
-				-o ${bam_dir}/${inputs['prefix']}.${sample_id}.bam \
-				-T ${tmp_dir} \
-				2>> $log_file_string
+		--read-group-id {1} \
+		--read-group-name {1} \
+		--read-group-platform {4} \
+		${rds_dir}/${inputs['cohort_id']}.{1}.raw_1P.fq.gz \
+		${rds_dir}/${inputs['cohort_id']}.{1}.raw_2P.fq.gz"
 
+	sort_options="\
+		-@ ${inputs['threads']} \
+		-m ${inputs['maxmem']} \
+		-o ${bam_dir}/${inputs['prefix']}.{1}.bam \
+		-T ${tmp_dir}"
+
+	run_align_in_parallel \
+		$gsnap \
+		${inputs['samples_list']} \
+		"${align_options}" \
+		${inputs['threads']} \
+		$log_file_string \
+		"$sort_options" || return 1
+}
+
+_mark_cohort_duplicates() {
+	local \
+		java_options \
+		option_string \
+		log_file_string
+
+	log_file_string="${inputs["log_prefix"]}${inputs["cohort_id"]}.{1}.log"
+
+	java_options="-Xmx${inputs['maxmem']}	\
+			-XX:ParallelGCThreads=${inputs['threads']} \
+			-Djava.io.tmpdir=${tmp_dir}/${inputs['prefix']}"
+
+	option_string="MarkDuplicates \
+			-I ${bam_dir}/${inputs['prefix']}.{1}.bam \
+			-REMOVE_DUPLICATES true \
+			-VALIDATION_STRINGENCY LENIENT \
+			-AS true \
+			-OUTPUT ${bam_dir}/${inputs['prefix']}.{1}.dedup.bam \
+			-METRICS_FILE ${bam_dir}/${inputs['prefix']}.{1}.dedup.log \
+			-CREATE_INDEX true"
+
+	run_gatk_in_parallel \
+		"${java_options}" \
+		${inputs['samples_list']} \
+		"${option_string}" \
+		${inputs['threads']} \
+		${log_file_string}
+
+}
+
+_fix_cohort_mate_info() {
+	local \
+		java_options \
+		option_string \
+		log_file_string
+
+	java_options="-Xmx${inputs['maxmem']}	\
+			-XX:ParallelGCThreads=${inputs['threads']} \
+			-Djava.io.tmpdir=${tmp_dir}/${inputs['prefix']}"
+
+	log_file_string="${inputs["log_prefix"]}${inputs["cohort_id"]}.{1}.log"
+
+	option_string="FixMateInformation \
+			-I ${bam_dir}/${inputs['prefix']}.{1}.dedup.bam \
+			-SORT_ORDER coordinate \
+			-VALIDATION_STRINGENCY LENIENT \
+			-CREATE_INDEX true \
+			-O ${bam_dir}/${inputs['prefix']}.{1}.fixmate.bam"
+
+	run_gatk_in_parallel \
+		"${java_options}" \
+		${inputs['samples_list']} \
+		"${option_string}" \
+		${inputs['threads']} \
+		${log_file_string}
+}
+
+_left_align_cohort_indels() {
+	local \
+		input_bam_stage=$1 \
+		java_options \
+		option_string \
+		log_file_string
+
+	java_options="-Xmx${inputs['maxmem']}	\
+			-XX:ParallelGCThreads=${inputs['threads']} \
+			-Djava.io.tmpdir=${tmp_dir}/${inputs['prefix']}"
+
+	log_file_string="${inputs["log_prefix"]}${inputs["cohort_id"]}.{1}.log"
+
+	option_string="LeftAlignIndels \
+			-R ${inputs['ref']} \
+			-I ${bam_dir}/${inputs['prefix']}.{1}.${input_bam_stage}.bam \
+			-O ${bam_dir}/${inputs['prefix']}.{1}.leftalignindels.bam"
+
+	run_gatk_in_parallel \
+		"${java_options}" \
+		${inputs['samples_list']} \
+		"${option_string}" \
+		${inputs['threads']} \
+		${log_file_string}
+}
+
+_perform_cohort_realignments() {
+
+	# this function has not yet been tested, 
+	# and currently *does not work*!
+
+	local \
+		java_options \
+		option_string \
+		log_file_string
+
+	java_options="-Xmx${inputs['maxmem']}	\
+			-XX:ParallelGCThreads=${inputs['threads']} \
+			-Djava.io.tmpdir=${tmp_dir}/${inputs['prefix']}"
+
+	log_file_string="${inputs["log_prefix"]}${inputs["cohort_id"]}.{1}.log"
+
+	local 
+		log_file_string=$1 \
+		sample_id=$2 \
+		fastq1=$3 \
+		fastq2=$4
+
+		java \
+			-Xmx${inputs['maxmem']} \
+			-XX:ParallelGCThreads=${inputs['threads']} \
+			-Djava.io.tmpdir=${tmp_dir}/${inputs['prefix']} \
+			-jar ${gatk3} \
+				-T RealignerTargetCreator \
+				-nt ${inputs['threads']} \
+				--known ${dbsnp_b37} \
+				-R ${inputs['ref']} \
+				--filter_reads_with_N_cigar \
+				-I ${bam_dir}/${inputs['prefix']}.${sample_id}.fixmate.bam \
+				-o ${bam_dir}/${inputs['prefix']}.${sample_id}.intervals \
+			2>> $log_file_string
+
+		java \
+			-Xmx${inputs['maxmem']} \
+			-XX:ParallelGCThreads=${inputs['threads']} \
+			-Djava.io.tmpdir=${tmp_dir}/${inputs['prefix']} \
+			-jar ${gatk3} \
+				-T IndelRealigner \
+				-R ${inputs['ref']} \
+				--filter_reads_with_N_cigar \
+				-I ${bam_dir}/${inputs['prefix']}.${sample_id}.fixmate.bam \
+				-targetIntervals ${bam_dir}/${inputs['prefix']}.intervals \
+				--consensusDeterminationModel KNOWNS_ONLY \
+				#-known ${b37_1000g} \
+				-LOD 0.4 \
+				-o ${bam_dir}/${inputs['prefix']}.${sample_id}.realign.bam
+			2>> $log_file_string
+
+		java \
+			-Xmx${inputs['maxmem']} \
+			-XX:ParallelGCThreads=${inputs['threads']} \
+			-Djava.io.tmpdir=${tmp_dir}/${inputs['prefix']} \
+			-jar ${gatk3} \
+				-T BaseRecalibrator \
+				--filter_reads_with_N_cigar \
+				-I ${bam_dir}/${inputs['prefix']}.${sample_id}.realign.bam \
+				-R ${inputs['ref']} \
+				#-knownSites ${dbsnp_b37} \
+				-o ${bam_dir}/${inputs['prefix']}.${sample_id}.recal.table
+			2>> $log_file_string
+
+		java \
+			-Xmx${inputs['maxmem']} \
+			-XX:ParallelGCThreads=${inputs['threads']} \
+			-Djava.io.tmpdir=${tmp_dir}/${inputs['prefix']} \
+			-jar ${gatk3} \
+				-T PrintReads \
+				--filter_reads_with_N_cigar \
+				-I ${bam_dir}/${inputs['prefix']}.${sample_id}.realign.bam \
+				-R ${inputs['ref']} \
+				-BQSR ${bam_dir}/${inputs['prefix']}.${sample_id}.recal.table \
+				-o ${bam_dir}/${inputs['prefix']}.${sample_id}.recal.realign.bam
+			2>> $log_file_string
 }
 
 _align_with_bowtie2() {

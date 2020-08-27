@@ -383,7 +383,7 @@ _sorting_bam_files() {
 _merge_bam_alignments() {
 	local \
 		option_string \
-		status=0
+		log_file_string
 
 	option_string="MergeBamAlignment \
 		-R ${inputs["ref"]} \
@@ -404,7 +404,6 @@ _merge_bam_alignments() {
 		|| { echo "...failed!"; return 1; } \
 		&& { echo "...done."; }
 
-	return $status
 }
 
 _add_read_group_info() {
@@ -412,7 +411,7 @@ _add_read_group_info() {
 	# the merge bam alignmnet step
 	local \
 		option_string \
-		status=0
+		log_file_string
 
 	option_string="AddOrReplaceReadGroups \
 		-I ${bam_dir}/${inputs["cohort_id"]}.{3}.sorted.bam \
@@ -433,8 +432,6 @@ _add_read_group_info() {
 		"${log_file_string}" \
 		|| { echo "...failed!"; return 1; } \
 		&& { echo "...done."; }
-
-	return $status
 
 }
 
