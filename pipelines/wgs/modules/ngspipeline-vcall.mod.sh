@@ -114,7 +114,7 @@ _call_with_freebayes() {
 	${freebayes} \
 		-f ${inputs['ref']} \
 		${input_bam_files[@]} \
-		> ${vcf_dir}/${inputs['prefix']}.vcf \
+		> ${vcf_dir}/${inputs['prefix']}.genotyped.g.vcf \
 		2>> $log_file_string \
 		|| return 1
 	echo "[${inputs['prefix']}][$(date "+%F %T")] DONE calling variants with ${inputs['prefix']}" >> ${log_file_string}
@@ -147,7 +147,7 @@ _call_with_samtools() {
 		2>> $log_file_string \
 		| ${bcftools} call \
 			-vmO v \
-			-o ${vcf_dir}/${inputs['prefix']}.vcf \
+			-o ${vcf_dir}/${inputs['prefix']}.genotyped.g.vcf \
 			2>> $log_file_string \
 			|| return 1
 	echo "[${inputs['prefix']}][$(date "+%F %T")] DONE calling variants with ${inputs['prefix']}" >> $log_file_string

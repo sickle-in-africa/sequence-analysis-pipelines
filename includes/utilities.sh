@@ -88,8 +88,6 @@ run_in_parallel() {
 		n_threads=$4 \
 		output_string=$5 
 
-	printf "[${inputs['prefix']}][$(date "+%F %T")] STARTED ${routine} over ${n_threads} threads\n" >> $output_string
-
 	sed '/^#/d' ${parameter_file} | \
 		parallel \
 			--col-sep '\t' \
@@ -99,8 +97,6 @@ run_in_parallel() {
 				-P $n_threads \
 				bash -c "$routine input" \
 				|| return 1
-
-	printf "[${inputs['prefix']}][$(date "+%F %T")] DONE ${routine}\n\n" >> ${output_string}
 }
 
 run_gatk_in_parallel() {
@@ -111,8 +107,6 @@ run_gatk_in_parallel() {
 		n_threads=$4 \
 		output_string=$5 
 
-	echo "[${inputs['prefix']}][$(date "+%F %T")] STARTED ${routine} over ${n_threads} threads" >> $output_string
-
 	sed '/^#/d' ${parameter_file} | \
 		parallel \
 			--col-sep '\t' \
@@ -122,8 +116,6 @@ run_gatk_in_parallel() {
 				-P $n_threads \
 				bash -c "$gatk --java-options \"${java_options}\" input" \
 				|| return 1
-
-	echo "[${inputs['prefix']}][$(date "+%F %T")] DONE ${routine}" >> ${output_string}
 }
 
 run_align_in_parallel() {
@@ -135,8 +127,6 @@ run_align_in_parallel() {
 		output_string=$5 
 		sort_options=$6
 
-	echo "[${inputs['prefix']}][$(date "+%F %T")] STARTED ${routine} over ${n_threads} threads" >> $output_string
-
 	sed '/^#/d' ${parameter_file} \
 		| parallel \
 			--col-sep '\t' \
@@ -146,8 +136,6 @@ run_align_in_parallel() {
 				-P $n_threads \
 				bash -c "$aligner input" \
 				|| return 1
-
-	echo "[${inputs['prefix']}][$(date "+%F %T")] DONE ${routine}\n\n" >> ${output_string}
 }
 
 set_up_tmps_and_logs() {

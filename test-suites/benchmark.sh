@@ -9,18 +9,19 @@
 #
 #########################################
 #!/bin/bash
+cd '../'
 
-source ../includes/locations.sh
-source ../includes/utilities.sh
+source includes/locations.sh
+source includes/utilities.sh
 
-source ${pip_dir}/modules/checkparams.mod.sh
 source ${tst_dir}/modules/test-suites.mod.sh
+source ${pip_dir}/wgs/modules/checkparams.mod.sh
 
 workflow() {
 	local 
 		argv=("$@")
 
-	declare -A inputs=( ["input_json"]=${argv[0]} ["log_prefix"]=${argv[1]} ['tmp_prefix']=${argv[2]} )
+	declare -A inputs=( ["input_json"]=${tst_dir}/${argv[0]} ["log_prefix"]=${argv[1]} ['tmp_prefix']=${argv[2]} )
 
 	custom_call check_input_json "checking a test suite input json file was provided..."
 
@@ -46,11 +47,10 @@ run_benchmark_test() {
 	for i in $(seq 1 ${inputs["runs_per_pipeline"]}); do
 
 		# clean data directories
-		${tst_dir}/clean-data.sh
+		(cd ${tst_dir} && ./clean-data.sh)
 
 		# 1. simulate reads:
-		${pip_dir}/${inputs["simulate_id"]}.sh \
-			${pip_dir}/${inputs["simulate_id"]}.${inputs["simulate_inputs_id"]}.json \
+		./sap.sh ${inputs['study_type']} ${inputs['simulate_id']} ${inputs['simulate_inputs_id']} \
 			${inputs["log_prefix"]} \
 			${inputs['tmp_prefix']} \
 			|| { echo 'test suite ERROR: simulating step failed'; exit 1; }
@@ -61,12 +61,11 @@ run_benchmark_test() {
 			echo "pipeline is: ${inputs["pipeline_id"]}"
 
 			# clean data directories
-			${pip_dir}/clean-data.sh
+			./sap.sh utils clean-data
 
 			# 2. run the pipeline and time it:
 			START=$(date +%s.%N)
-			${pip_dir}/${inputs["pipeline_id"]}.sh \
-				${pip_dir}/${inputs["pipeline_id"]}.${inputs["pipeline_inputs_id"]}.json \
+			./sap.sh ${inputs['study_type']} ${inputs["pipeline_id"]} ${inputs["pipeline_inputs_id"]} \
 				${inputs["log_prefix"]} \
 				${inputs['tmp_prefix']} \
 				|| { echo 'test suite ERROR: pipeline step failed'; exit 1; }

@@ -8,17 +8,18 @@
 ###############################################################
 
 #!/bin/bash
+cd '../'
 
-source ../includes/locations.sh
-source ../includes/utilities.sh
+source includes/locations.sh
+source includes/utilities.sh
 
 workflow() { 
 	local argv=("$@")
 
-	${pip_dir}/clean-data.sh
+	./sap.sh utils clean-data
 
-	echo '  cleaning reads files' && rm ${rds_dir}/* 2> /dev/null
-	echo '  cleaning truth vcf files' && rm ${vcf_dir}/*.truth.* 2> /dev/null
+	[[ -d ${rds_dir} ]] && echo '  cleaning reads files' && rm ${rds_dir}/* 2> /dev/null
+	[[ -d ${rds_dir} ]] && echo '  cleaning truth vcf files' && rm ${vcf_dir}/*.truth.* 2> /dev/null
 }
 
 #

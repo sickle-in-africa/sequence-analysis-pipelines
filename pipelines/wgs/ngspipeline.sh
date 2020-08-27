@@ -50,10 +50,7 @@ initialize_inputs_hash() {
 	inputs['aligner_id']=NULL;			# name of he chosen aligner tool
 	inputs['caller_id']=NULL;				# name of the chosen variant caller tool
 	inputs['ref_base']=NULL;			# basename of the reference sequence file
-	inputs['sample_id']=NULL;			# prefix for outputs
 	inputs['cohort_id']=NULL;			# prefix for outputs
-	inputs['fastq1']=NULL;				# input fastq file (1)
-	inputs['fastq2']=NULL;				# input fastq file (2)
 	inputs['threads']=1;				# number of threads to parallelize over
 	inputs['maxmem']=100M;				# max memory per thread (approximately)
 	inputs['recal_realign_on']='no';	# do recalibrations (options "yes", "no", "both")
@@ -64,24 +61,20 @@ initialize_inputs_hash() {
 	_update_input_value_from_json 'aligner_id'
 	_update_input_value_from_json 'caller_id'
 	_update_input_value_from_json 'ref_base'
-	_update_input_value_from_json 'sample_id'
 	_update_input_value_from_json 'cohort_id'
-	_update_input_value_from_json 'fastq1_base'
-	_update_input_value_from_json 'fastq2_base'
 	_update_input_value_from_json 'threads'
 	_update_input_value_from_json 'maxmem'
 	_update_input_value_from_json 'recal_realign_on'
 
+	# 3. set derivative parameters
 	inputs['ref']=${ref_dir}/${inputs['ref_base']}
-	inputs["fastq1"]=${rds_dir}/${inputs["fastq1_base"]}
-	inputs["fastq2"]=${rds_dir}/${inputs["fastq2_base"]}
 	inputs['prefix']="${inputs['cohort_id']}.${inputs['aligner_id']}.${inputs['caller_id']}.${inputs['ref_base']%.fa}";	# prefix for output files
 	inputs['log_file']="${log_dir}/${inputs['prefix']}.log";							# output lof file path 
 	inputs['idx']="${ref_dir}/${inputs['aligner_id']}.${inputs['ref_base']}";			# aligner index file
 	inputs['samples_list']=${rds_dir}/${inputs['cohort_id']}.samples.list
 	[[ $status == 0 ]] && echo '...done'
 
-	# 3. check that inputs make sense
+	# 4. check that inputs make sense
 	printf '  checking that parameter values make sense...'
 
 	## check that all required tools are installed
@@ -89,7 +82,7 @@ initialize_inputs_hash() {
 
 	[[ $status == 0 ]] && echo '...done'
 
-	# 4. set up output logging and temporary files
+	# 5. set up output logging and temporary files
 	set_up_tmps_and_logs || { echo 'seting up temp and log directory failed'; status=1; }
 }
 

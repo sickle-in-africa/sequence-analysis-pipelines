@@ -23,11 +23,14 @@ workflow() {
 
 	declare -A inputs=( ["input_json"]=${argv[0]} ["log_prefix"]=${argv[1]} ["tmp_prefix"]=${argv[2]})
 
+	inputs['aligner_id']=bwa
+	inputs['caller_id']=samtools
+
 	custom_call check_input_json "checking a pipeline input json file was provided..."
 
 	custom_call initialize_inputs_hash "initializing pipeline input parameter values..."
 
-	custom_call fq "checking read file quality..."
+	custom_call fq "checking read file quality with FASTQC..."
 
 	custom_call trim "trimming read files..."
 

@@ -1,5 +1,5 @@
 {
-  "aligner_id": "gsnap",
+  "aligner_id": "stampy",
   "caller_id": "samtools",
   "ref_base": "lambda-virus.fa",
   "sample_id": "s_1",

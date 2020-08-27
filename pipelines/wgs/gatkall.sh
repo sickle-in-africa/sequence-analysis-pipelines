@@ -19,6 +19,9 @@ workflow() {
 		argv=("$@") \
 	
 	declare -A inputs=( ["input_json"]=${argv[0]} ["log_prefix"]=${argv[1]} ['tmp_prefix']=${argv[2]})
+	
+	inputs['aligner_id']=bwa
+	inputs['caller_id']=gatk
 
 	custom_call check_input_json "checking a pipeline input json file was provided..."
 

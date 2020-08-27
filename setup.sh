@@ -413,9 +413,10 @@ create_locations_file() {
 #	* for directories and executable tools
 #	* used by the variant-caller package.
 #	* 
-#	* Use the <sap-path>/setup.sh script to modify this
-#	* file. Any direct changes to the file 
-#	* itself may be overwritten by setup.sh.
+#	* Use the <sap-path>/setup.sh script to 
+#	* modify this file. Any direct changes
+#	* to the file itself will be overwritten
+#	* by another call of setup.sh.
 #
 #	Jack Morrice
 #

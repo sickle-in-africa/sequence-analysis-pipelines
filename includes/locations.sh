@@ -7,7 +7,7 @@
 #	* 
 #	* Use the <sap-path>/setup.sh script to modify this
 #	* file. Any direct changes to the file 
-#	* itself may be overwritten by setup.sh.
+#	* itself will be overwritten by another call of setup.sh.
 #
 #	Jack Morrice
 #
