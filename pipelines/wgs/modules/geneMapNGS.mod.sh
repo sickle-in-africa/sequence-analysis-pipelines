@@ -401,6 +401,7 @@ _add_read_group_info() {
 		-SM {3} \
 		-PL {4} \
 		-PU {3} \
+		-ID {1} \
 		-LB {3}"
 
 	log_file_string="${inputs["log_prefix"]}${inputs["cohort_id"]}.{1}.log"
@@ -700,7 +701,7 @@ _call_sample_variants() {
 		--lenient true \
 		-ERC GVCF"
 
-	log_file_string="${inputs["log_prefix"]}${inputs["cohort_id"]}.{3}.log"
+	log_file_string="${inputs["log_prefix"]}${inputs["cohort_id"]}.{1}.log"
 
 	run_in_parallel \
 		"$gatk" \

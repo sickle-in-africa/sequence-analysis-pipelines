@@ -23,13 +23,13 @@ workflow() {
 
 	declare -A inputs=( ["input_json"]=${tst_dir}/${argv[0]} ["log_prefix"]=${argv[1]} ['tmp_prefix']=${argv[2]} )
 
-	custom_call check_input_json "checking a test suite input json file was provided..."
+	custom_call_ts check_input_json "checking a test suite input json file was provided..."
 
-	custom_call initialize_inputs_hash "initializing input parameter values..."
+	custom_call_ts initialize_inputs_hash "initializing input parameter values..."
 
-	custom_call run_benchmark_test "running pipeline benchmark test..."
+	custom_call_ts run_benchmark_test "running pipeline benchmark test..."
 
-	custom_call plot_benchmark_test "plotting benchmark test results..."
+	custom_call_ts plot_benchmark_test "plotting benchmark test results..."
 
 }
 
@@ -49,34 +49,30 @@ run_benchmark_test() {
 		# clean data directories
 		(cd ${tst_dir} && ./clean-data.sh)
 
-		# 1. simulate reads:
-		./sap.sh ${inputs['study_type']} ${inputs['simulate_id']} ${inputs['simulate_inputs_id']} \
-			${inputs["log_prefix"]} \
-			${inputs['tmp_prefix']} \
-			|| { echo 'test suite ERROR: simulating step failed'; exit 1; }
+		custom_call_ts_2 simulate_reads "[run $i] simulating cohort reads..."
 
 		for j in "gatkall" "bcfall"; do
 
 			inputs["pipeline_id"]=$j
-			echo "pipeline is: ${inputs["pipeline_id"]}"
+			inputs['aligner_id']='bwa'
+			if [[ ${inputs["pipeline_id"]} == "gatkall" ]]; then
+				inputs['caller_id']='gatk'
+			elif [[ ${inputs['pipeline_id']} == 'bcfall' ]]; then
+				inputs['caller_id']='samtools'
+			fi
+			inputs['prefix']="${inputs['cohort_id']}.${inputs['aligner_id']}.${inputs['caller_id']}.${inputs['ref_base']%.fa}";	# prefix for output files
 
 			# clean data directories
 			./sap.sh utils clean-data
 
 			# 2. run the pipeline and time it:
-			START=$(date +%s.%N)
-			./sap.sh ${inputs['study_type']} ${inputs["pipeline_id"]} ${inputs["pipeline_inputs_id"]} \
-				${inputs["log_prefix"]} \
-				${inputs['tmp_prefix']} \
-				|| { echo 'test suite ERROR: pipeline step failed'; exit 1; }
-			END=$(date +%s.%N)
-			DIFF=$(echo "$END - $START" | bc)
+			custom_call_ts_2 run_pipeline "[run $i] running pipeline: ${inputs['pipeline_id']} with aligner: ${inputs['aligner_id']} and caller: ${inputs['caller_id']}..."
 
 			# 3. compare truth and estimated gvcf files
 
-			custom_call compare_truth_est_vcf "comparing the simulation's truth vcf file against the variant caller output..."
+			custom_call_ts_2 compare_truth_est_vcf "[run $i] comparing the simulation's truth vcf file against the variant caller output..."
 			
-			custom_call jaccard_index "computing jaccard index..." \
+			custom_call_ts_2 jaccard_index "[run $i] computing jaccard index..." \
 				jacc_value
 			
 			echo "Jaccard value: $jacc_value"
@@ -87,6 +83,23 @@ run_benchmark_test() {
 		done
 
 	done
+}
+
+simulate_reads() {
+	./sap.sh ${inputs['study_type']} ${inputs['simulate_id']} ${inputs['simulate_inputs_id']} \
+		${inputs["log_prefix"]} \
+		${inputs['tmp_prefix']} \
+		|| return 1
+}
+
+run_pipeline() {
+	START=$(date +%s.%N)
+	./sap.sh ${inputs['study_type']} ${inputs["pipeline_id"]} ${inputs["pipeline_inputs_id"]} \
+		${inputs["log_prefix"]} \
+		${inputs['tmp_prefix']} \
+		|| { echo 'test suite ERROR: pipeline step failed'; exit 1; }
+	END=$(date +%s.%N)
+	DIFF=$(echo "$END - $START" | bc)
 }
 
 plot_benchmark_test() {

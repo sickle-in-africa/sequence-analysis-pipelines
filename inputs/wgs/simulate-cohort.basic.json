@@ -4,7 +4,7 @@
   "read_type": "pe",
 
   "threads": 8,
-  "n_samples": 4,
+  "n_samples": 20,
 
   "has_snps": 1,
   "psnp": 0.001,

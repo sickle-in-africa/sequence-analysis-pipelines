@@ -12,13 +12,14 @@
 ## output formatting
 red='\033[0;31m'
 green='\033[0;32m'
+blue='\033[0;34m'
 nc='\033[0m' # No Color
 error="\e[38;5;1mERROR\e[0m:"
 
 # generic useful functions
 
 custom_call() {
-	# for *top level functions*
+	# for *pipeline top level functions*
 	# call tasks above with colored output
 	# and terminate the workflow on errors
 	local \
@@ -34,7 +35,7 @@ custom_call() {
 }
 
 custom_call_2() {
-	# for *low level functions*
+	# for *pipeline 2nd level functions*
 	# call tasks above with messages
 	# and return 1 on errors
 	local \
@@ -49,6 +50,38 @@ custom_call_2() {
 		echo "...failed!"
 		return 1
 	fi
+}
+
+custom_call_ts() {
+	# for *test-suite top level functions*
+	# call tasks above with colored output
+	# and terminate the workflow on errors
+	local \
+		routine=$1 \
+		msg=$2
+	shift; shift
+
+	printf "${blue}xxx $msg${nc}"; echo
+ 
+	$routine "$@" \
+		|| { printf "${red}xxx ...failed!${nc}"; echo; exit 1; } \
+		&& { printf "${blue}xxx ...done."${nc}; echo; }
+}
+
+custom_call_ts_2() {
+	# for *test-suite 2nd level functions*
+	# call tasks above with colored output
+	# and terminate the workflow on errors
+	local \
+		routine=$1 \
+		msg=$2
+	shift; shift
+
+	printf "${blue}xxx+++ $msg${nc}"; echo
+ 
+	$routine "$@" \
+		|| { printf "${red}xxx+++ ...failed!${nc}"; echo; exit 1; } \
+		&& { printf "${blue}xxx+++ ...done."${nc}; echo; }
 }
 
 value_from_json() {

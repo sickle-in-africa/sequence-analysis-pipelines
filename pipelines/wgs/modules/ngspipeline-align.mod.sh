@@ -141,6 +141,7 @@ _add_read_group_info() {
 		-SM {1} \
 		-PL {4} \
 		-PU {1} \
+		-ID {1} \
 		-LB {1}"
 
 	log_file_string="${inputs["log_prefix"]}${inputs["cohort_id"]}.{1}.log"
@@ -207,7 +208,7 @@ _align_with_bowtie2() {
 	sort_options="\
 		-@ ${inputs['threads']} \
 		-m ${inputs['maxmem']} \
-		-o ${bam_dir}/${inputs['prefix']}.{1}.bam \
+		-o ${bam_dir}/${inputs['prefix']}.{1}.norgs.bam \
 		-T ${tmp_dir}"
 
 	run_align_in_parallel \

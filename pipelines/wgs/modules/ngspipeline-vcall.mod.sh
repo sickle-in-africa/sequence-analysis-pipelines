@@ -30,8 +30,6 @@ call_variants() {
 
 	dbsnpidx="dbsnp_${inputs['ref_id']}"
 
-	echo "[${inputs['prefix']}][$(date "+%F %T")] +++ Start processing sample ${inputs['sample_id']} with ${inputs['caller_id']}" >> ${inputs['log_prefix']}${inputs['cohort_id']}.${inputs['sample_id']}.log
-
 	if [ "${inputs['caller_id']}" = "gatk2_ug" ];then
 		echo "[${inputs['prefix']}][$(date "+%F %T")] STARTED calling variants with ${inputs['prefix']}" >> ${inputs['log_prefix']}${inputs['cohort_id']}.${inputs['sample_id']}.log
 		java -Xmx${inputs['maxmem']} -XX:ParallelGCThreads=${inputs['threads']} -Djava.io.tmpdir=${tmp_dir}/${inputs['prefix']} -jar ${gatk2}/GenomeAnalysisTK.jar -R ${b37_fasta} -T UnifiedGenotyper -glm BOTH --num_threads ${inputs['threads']} -I ${bam} --dbsnp ${!dbsnpidx} -o ${work_dir}/${inputs['prefix']}/${inputs['prefix']}_${bam_type}.vcf -stand_call_conf 50.0 -stand_emit_conf 10.0 -dcov 200
@@ -87,7 +85,6 @@ call_variants() {
 		echo "[${inputs['prefix']}][$(date "+%F %T")] DONE calling variants with ${inputs['prefix']}" >> ${inputs['log_prefix']}${inputs['cohort_id']}.${inputs['sample_id']}.log
 	fi
 
-	echo "[${inputs['prefix']}][$(date "+%F %T")] +++ End processing sample ${inputs['sample_id']} with ${inputs['caller_id']}" >> ${inputs['log_prefix']}${inputs['cohort_id']}.${inputs['sample_id']}.log
 }
 
 _call_with_freebayes() {

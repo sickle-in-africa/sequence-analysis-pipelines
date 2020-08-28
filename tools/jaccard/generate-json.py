@@ -1,10 +1,16 @@
 #
 #	GENERATE JSON - python tool
 #
-#	* generate an input json file series
-#	* to input to pipelines (for testing
-#	* the variation of pipeline output
-#	* with input parameters). 
+#	* creates a new json file from an old
+#	* one, by modifying a value corresponding
+#	* to a key supplied by the user. 
+#	*
+#	* The input and output json file paths can
+#	* be the same, in which case the input json
+#	* file is over-written.
+#	* If a key is given for which there is no
+#	* corresponding key in the input json, a new
+#	* key value pair will be created.
 #
 #	Jack Morrice
 #

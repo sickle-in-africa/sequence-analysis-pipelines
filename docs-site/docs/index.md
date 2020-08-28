@@ -14,4 +14,4 @@ stuff here...
 
 1. [Getting started](pages/getting-started.md)
 
-2. [Installing external tools](pages/installing-external-tools.md) 
+2. [Installing external tools](pages/how-tos/install-required-tools.md) 
