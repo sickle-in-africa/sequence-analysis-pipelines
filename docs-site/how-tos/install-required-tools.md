@@ -1,3 +1,9 @@
+---
+layout: default
+title: installing required tools
+parent: how-to's
+---
+
 How do I install the SAP library's required tools?
 ==================================================
 
@@ -22,30 +28,65 @@ BCFtools is a set of utilities that manipulate variant calls in the Variant Call
 	make
 	make install
 	```
-There should now be build files inside the `bcftools-X.X.X` folder. 
+	There should now be build files inside the `bcftools-X.X.X` folder. 
 
-3. Test the tool installed correctly by typing:
-	```
+3. Test the tool installed correctly by typing:```
 	./bcftools --help
-	```
-and you should see the help manual, which starts with something like this:
-	```
+	``` and you should see the help manual, which starts with something like this:```
 	Program: bcftools (Tools for variant calling and manipulating VCFs and BCFs)
 	Version: 1.10.2 (using htslib 1.10.2)
 	...
 	```
 
-4. Tell the SAP library where to find the bcftools executable, `bcftools`. for this, you simply add the path of this file, *relative to the SAP library tools directoty* to the file `<sap-path>/tools/tool-list.json` as in the following example:
-	```
-	  "bcftools": "bcftools-1.10.2/bcftools",
-	```
+4. Tell the SAP library where to find the bcftools executable, `bcftools`. For this, you simply add the path of this file, *relative to the SAP library tools directory* to the file `<sap-path>/tools/tool-list.json` as in the following example:
+```
+"bcftools": "bcftools-1.10.2/bcftools",
+```
 Now, when the setup script is run, this tool will be accessible to the library. Remember that the quotes and comma at the end of the line in the above example are needed to ensure that `tool-list.json` is a valid json file. 
 
 # bowtie2
 
+Bowtie 2 is an ultrafast and memory-efficient tool for aligning sequencing reads to long reference sequences. It is particularly good at aligning reads of about 50 up to 100s or 1,000s of characters, and particularly good at aligning to relatively long (e.g. mammalian) genomes.
 
+A stable version of bowtie2 can be downloaded via sourceforge from [here](https://sourceforge.net/projects/bowtie-bio/files/bowtie2/2.4.1/). 
+
+## tool requirements
+*If building bowtie2 from source:* 
+* GCC, GNU Make and other basics
+* Threading Building Blocks library (TBB)
+* [zlib](https://www.zlib.net)
+
+## steps
+1. start by downloading the most recent version of bowtie2 from [sourceforge](https://sourceforge.net/projects/bowtie-bio/files/bowtie2/2.4.1/). If you are using linux we advise you obtain the binaries: `bowtie2-X.X.X-linux-x86_64` where X.X.X is the version number, for example 2.4.1.
+
+2. Unzip the archive to the `<sap-path>/tools` directory. 
+
+3. Test that the build works by changing to the bowtie2 directory and accessing the help menu:
+```
+cd <sap-path>/tools/bowtie2-X.X.X
+./bowtie2 --help
+```
+
+4. Tell the SAP library where to find the bowtie2 executable, `bowtie2`. For this, you simply add the path of this file, *relative to the SAP library tools directory* to the file `<sap-path>/tools/tool-list.json` as in the following example:
+```
+"bcftools": "bowtie2-X.X.X/bowtie2",
+```
+Now, when the setup script is run, this tool will be accessible to the library. Remember that the quotes and comma at the end of the line in the above example are needed to ensure that `tool-list.json` is a valid json file. 
 
 # bwa
+
+BWA is a software package for mapping low-divergent sequences against a large reference genome, such as the human genome. It consists of three algorithms: BWA-backtrack, BWA-SW and BWA-MEM. The first algorithm is designed for Illumina sequence reads up to 100bp, while the rest two for longer sequences ranged from 70bp to 1Mbp.
+
+A stable version of the package can be found, along with documentation, via [sourceforge](http://bio-bwa.sourceforge.net/)
+
+## tool requirements
+
+## steps
+1. Download the latest version of the package from [sourceforge](https://sourceforge.net/projects/bio-bwa/files/) and extract the contents of the tar archive to the `<sap-path>/tools` directory with:
+```
+cd <your-downloads-path>
+tar -C <sap-path>/tools -xvf bwa-X.X.X
+```
 
 # fastqc
 
@@ -96,3 +137,6 @@ Now, when the setup script is run, this tool will be accessible to the library. 
 # stampy
 
 # trimmomatic
+
+# for developers: jekyll (to edit the docs)
+

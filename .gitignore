@@ -1,7 +1,10 @@
 includes/locations.sh
 
 data
-docs-site/site
+docs-site/_site
+docs-site/ruby
+docs-site/.jekyll-cache
+docs-site/Gemfile.lock
 
 tools/bwa-0.7.17
 tools/samtools-1.10

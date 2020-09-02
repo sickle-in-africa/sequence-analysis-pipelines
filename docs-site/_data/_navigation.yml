@@ -1,0 +1,8 @@
+- name: home
+  link: /
+- name: how-to's
+  link: /how-tos/how-tos.md
+- name: install required tools
+  link: /how-tos/install-required-tools.md
+- name: references
+  link: /references/references.md
