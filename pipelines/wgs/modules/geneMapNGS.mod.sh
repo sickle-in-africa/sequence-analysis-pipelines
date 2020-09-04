@@ -103,11 +103,57 @@ initialize_inputs_hash() {
 	## still need to write checks for the other input parameters...
 	[[ $status == 0 ]] && echo '...done'
 
+	printf '  checking that the necessary tools have been installed...'
+	_check_aligner_installed	|| status=1
+	_check_caller_installed		|| status=1
+	_check_samtools				|| status=1
+	_check_gatk					|| status=1
+	_check_fastqc				|| status=1
+	_check_trimmomatic			|| status=1
+	[[ $status == 0 ]] && echo '...done'
+
 	# 5. set up output logging and temporary files
 	set_up_tmps_and_logs || { echo 'seting up temp and log directory failed'; status=1; }
 
 	return $status
 }
+
+_check_aligner_installed() {
+	if [ ${inputs['aligner_id']} = "bwa" ]; then
+		_check_bwa || { echo "error: bwa not installed"; return 1; }
+	
+	elif [ ${inputs['aligner_id']} = "gsnap" ]; then
+		_check_gsnap || { echo "error: gsnap not installed"; return 1; }
+	
+	elif [ ${inputs['aligner_id']} = "bowtie2" ]; then
+		_check_bowtie2 || { echo "error: bowtie2 not installed"; return 1; }
+	
+	elif [ "${inputs['aligner_id']}" = "stampy" ]; then
+		_check_stampy || { echo "error: stampy not installed"; return 1; }
+		_check_bwa || { echo "error: bwa required by stampy but not installed"; return 1; }
+	fi
+}
+
+_check_caller_installed() {
+	if [ "${inputs['caller_id']}" = "freebayes" ];then
+		_check_freebayes || { echo "error: freebayes not installed"; return 1; }
+	elif [ "${inputs['caller_id']}" = "samtools" ];then
+		_check_bcftools || { echo "error: bcftools not installed"; return 1; }
+	elif [ "${inputs['caller_id']}" = "gatk" ];then
+		_check_gatk || { echo "error: gatk not installed"; return 1; }
+	fi
+}
+
+_check_bowtie2() { $bowtie2 --help &> /dev/null || return 1; }
+_check_samtools() {	$samtools --help &> /dev/null || return 1; }
+_check_bcftools() {	$bcftools --help &> /dev/null || return 1; }
+_check_bwa() { man ${bwa}.1 &> /dev/null || return 1; }
+_check_gsnap() { $gsnap --help &> /dev/null || return 1; }
+_check_stampy() { python $stampy --help &> /dev/null || return 1; }
+_check_gatk() { $gatk --help &> /dev/null || return 1; }
+_check_fastqc() { $fastqc --help &> /dev/null || return 1; }
+_check_trimmomatic() { java -jar $trimmomatic -version &> /dev/null || return 1; }
+_check_freebayes() { $freebayes --help &> /dev/null || return 1; }
 
 #
 #  1. command functions
@@ -923,7 +969,6 @@ function check_sample() {
 
 		fi
 	done < ${inputs["meta"]}
-
 }
 
 #--- Prepare input for BQSR

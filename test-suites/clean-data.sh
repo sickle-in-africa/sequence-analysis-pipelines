@@ -16,15 +16,30 @@ source includes/utilities.sh
 workflow() { 
 	local argv=("$@")
 
-	./sap.sh utils clean-data
+	declare -A inputs=( ['cohort_id']=${argv[0]} ['study_type']=wgs)
 
-	[[ -d ${rds_dir} ]] && echo '  cleaning reads files' && rm ${rds_dir}/* 2> /dev/null
-	[[ -d ${rds_dir} ]] && echo '  cleaning truth vcf files' && rm ${vcf_dir}/*.truth.* 2> /dev/null
+	custom_call_ts_2 clean_downstream_data 'cleaning downstream pipeline data...' || return 1
+
+	[[ -d ${rds_dir} ]] && echo "  cleaning ${inputs['cohort_id']} reads files" && rm ${rds_dir}/${inputs['cohort_id']}* 2> /dev/null
+	[[ -d ${rds_dir} ]] && echo "  cleaning ${inputs['cohort_id']} truth vcf files" && rm ${vcf_dir}/${inputs['cohort_id']}*.truth.* 2> /dev/null
 }
 
 #
 #  tasks
 #
+clean_downstream_data() {
+	local \
+		temp_json \
+		temp_json_id
+
+	temp_json_id=$(random_id)
+	temp_json=${pin_dir}/${inputs['study_type']}/clean-data.${temp_json_id}.json
+
+	echo '{ "cohort_id": "'${inputs['cohort_id']}'"}' > $temp_json
+
+	./sap.sh wgs clean-data $temp_json_id || return 1
+	rm $temp_json
+}
 
 #
 #  run workflow

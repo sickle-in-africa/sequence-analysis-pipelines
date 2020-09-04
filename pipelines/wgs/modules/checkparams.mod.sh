@@ -9,15 +9,6 @@
 #	+ check_gatk_dict()
 #	+ check_samtools_fai()
 #
-check_input_json() {
-
-    # check a filename was given
-    [[ -s ${inputs["input_json"]} ]] || { echo 'ERROR: please specify an input json file'; return 1; }
-
-    # check that it is a valid json file
-    cat ${inputs["input_json"]} | jq -e . 1> /dev/null || { echo 'ERROR in input json file'; return 1; }
-}
-
 check_id() {
     local \
         id_type=$1 \

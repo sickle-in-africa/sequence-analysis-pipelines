@@ -7,7 +7,7 @@
 #	* pipeline scripts directly. 
 #
 #	* basic usage:
-#	* ./sap.sh <study_type> <pipeline id> <pipeline inputs id>
+#	* ./sap.sh <study-type> <pipeline-id> <pipeline-inputs-id>
 #
 #	* example:
 #	* ./sap.sh wgs gatkall basic

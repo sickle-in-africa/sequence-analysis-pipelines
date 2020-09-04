@@ -47,9 +47,9 @@ run_benchmark_test() {
 	for i in $(seq 1 ${inputs["runs_per_pipeline"]}); do
 
 		# clean data directories
-		(cd ${tst_dir} && ./clean-data.sh)
+		(cd ${tst_dir} && ./clean-data.sh ${inputs['cohort_id']}) || return 1
 
-		custom_call_ts_2 simulate_reads "[run $i] simulating cohort reads..."
+		custom_call_ts_2 simulate_reads "[run $i] simulating cohort reads..." || return 1
 
 		for j in "gatkall" "bcfall"; do
 
@@ -63,17 +63,16 @@ run_benchmark_test() {
 			inputs['prefix']="${inputs['cohort_id']}.${inputs['aligner_id']}.${inputs['caller_id']}.${inputs['ref_base']%.fa}";	# prefix for output files
 
 			# clean data directories
-			./sap.sh utils clean-data
+			custom_call_ts_2 clean_downstream_data 'cleaning downstream pipeline data...' || return 1
 
 			# 2. run the pipeline and time it:
-			custom_call_ts_2 run_pipeline "[run $i] running pipeline: ${inputs['pipeline_id']} with aligner: ${inputs['aligner_id']} and caller: ${inputs['caller_id']}..."
+			custom_call_ts_2 run_pipeline "[run $i] running pipeline: ${inputs['pipeline_id']} with aligner: ${inputs['aligner_id']} and caller: ${inputs['caller_id']}..." || return 1
 
 			# 3. compare truth and estimated gvcf files
 
-			custom_call_ts_2 compare_truth_est_vcf "[run $i] comparing the simulation's truth vcf file against the variant caller output..."
+			custom_call_ts_2 compare_truth_est_vcf "[run $i] comparing the simulation's truth vcf file against the variant caller output..." || return 1
 			
-			custom_call_ts_2 jaccard_index "[run $i] computing jaccard index..." \
-				jacc_value
+			custom_call_ts_2 jaccard_index "[run $i] computing jaccard index..." jacc_value || return 1
 			
 			echo "Jaccard value: $jacc_value"
 			echo "pipeline runtime: $DIFF seconds"
@@ -83,6 +82,19 @@ run_benchmark_test() {
 		done
 
 	done
+}
+
+clean_downstream_data() {
+	local \
+		temp_json \
+		temp_json_id
+
+	temp_json_id=$(random_id)
+	temp_json=${pin_dir}/${inputs['study_type']}/clean-data.${temp_json_id}.json
+
+	echo '{ "cohort_id": "'${inputs['cohort_id']}'"}' > $temp_json
+	./sap.sh wgs clean-data $temp_json_id || return 1
+	rm $temp_json
 }
 
 simulate_reads() {

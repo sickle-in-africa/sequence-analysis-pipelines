@@ -1,0 +1,9 @@
+{
+  "cohort_id": "c_1", 
+  "recal_realign_on": "no", 
+  "caller_id": "freebayes", 
+  "aligner_id": "bowtie2", 
+  "ref_base": "lambda-virus.fa", 
+  "threads": 8, 
+  "maxmem": "1G"
+}

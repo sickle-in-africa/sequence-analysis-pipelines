@@ -80,8 +80,17 @@ custom_call_ts_2() {
 	printf "${blue}xxx+++ $msg${nc}"; echo
  
 	$routine "$@" \
-		|| { printf "${red}xxx+++ ...failed!${nc}"; echo; exit 1; } \
+		|| { printf "${red}xxx+++ ...failed!${nc}"; echo; return 1; } \
 		&& { printf "${blue}xxx+++ ...done."${nc}; echo; }
+}
+
+check_input_json() {
+
+    # check a filename was given
+    [[ -s ${inputs["input_json"]} ]] || { echo 'ERROR: please specify an input json file'; return 1; }
+
+    # check that it is a valid json file
+    cat ${inputs["input_json"]} | jq -e . 1> /dev/null || { echo 'ERROR in input json file'; return 1; }
 }
 
 value_from_json() {

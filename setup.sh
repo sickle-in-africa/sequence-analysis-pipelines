@@ -8,6 +8,12 @@
 #	* You may re-run this script any time another
 #	* tool has been installed to update your instance
 #	* of the sap library.
+#	*
+#	* basic usage:
+#	* ./setup.sh <study-type> <reference-id>
+#
+#	* example:
+#	* ./setup.sh wgs lambda-virus
 #
 #	Jack Morrice
 #
@@ -19,7 +25,7 @@ source includes/utilities.sh
 workflow() {
 	local argv=("$@")
 
-	declare -A inputs=( ["log_file"]=$(random_id)_setup.log)
+	declare -A inputs=( ['log_file']=$(random_id)_setup.log ['study_type']=${argv[0]} ['ref_base']=${argv[1]}'.fa')
 	declare -A direcs=( ['pro_dir']=$(pwd) )
 	declare -A tools
 
@@ -39,10 +45,7 @@ workflow() {
 	custom_call create_locations_file " writing includes/locations.sh"
 
 	# build all installed tool indices
-	if [[ ! -z ${argv[0]} ]]; then
-		inputs['ref_base']=${argv[0]}
-		custom_call build_tool_indices "building indices for all installed tools..."
-	fi
+	custom_call build_tool_indices "building indices for all installed tools..."
 }
 
 
@@ -392,13 +395,13 @@ _build_samtools_index() {
 
 _build_gatk_dict() {
 
-	if [[ ! -f "${direcs['ref_dir']}/gatk.${inputs['ref_base']%.fa}.dict" ]]; then
+	if [[ ! -f "${direcs['ref_dir']}/${inputs['ref_base']%.fa}.dict" ]]; then
 		${tools['gatk']} CreateSequenceDictionary \
 			-R ${direcs['ref_dir']}/${inputs['ref_base']} \
 			-O ${direcs['ref_dir']}/${inputs['ref_base']%.fa}.dict \
 			&>> ${inputs['log_file']}
 	else
-		echo "skipping as dictionary exists"
+		printf "skipping as dictionary exists"
 	fi
 }
 
