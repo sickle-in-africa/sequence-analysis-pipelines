@@ -1,0 +1,9 @@
+{
+  "aligner_id": "stampy",
+  "caller_id": "samtools",
+  "ref_base": "lambda-virus.fa",
+  "cohort_id": "c_1",
+  "threads": 8,
+  "maxmem": "1G",
+  "recal_realign_on": "no"
+}
