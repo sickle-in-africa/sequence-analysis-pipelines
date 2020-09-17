@@ -1,5 +1,13 @@
 includes/locations.sh
 
+vendor
+Gemfile
+Gemfile.lock
+_site
+.bundle
+
+.gitignore
+
 data
 docs
 
