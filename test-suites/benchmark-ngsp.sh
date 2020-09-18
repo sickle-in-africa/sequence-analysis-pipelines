@@ -42,7 +42,7 @@ run_benchmark_test() {
 		jacc_value='NULL'
 
 	> ${dat_dir}/benchmark-runs.dat
-	echo -e "run\taligner\tcaller\tjaccard\truntime" >> ${dat_dir}/benchmark-ngs-runs.dat
+	echo -e "run\taligner\tcaller\tjaccard\truntime" >> ${dat_dir}/benchmark-ngsp-runs.dat
 
 	for i in $(seq 1 ${inputs["runs_per_pipeline"]}); do
 
