@@ -1,7 +1,6 @@
 includes/locations.sh
 
 vendor
-Gemfile
 Gemfile.lock
 _site
 .bundle
@@ -9,7 +8,6 @@ _site
 .gitignore
 
 data
-docs
 
 tools/bwa-0.7.17
 tools/samtools-1.10
