@@ -1,9 +1,9 @@
 includes/locations.sh
 
-vendor
-Gemfile.lock
-_site
-.bundle
+docs/.bundle
+docs/_site
+docs/vendor
+docs/Gemfile.lock
 
 .gitignore
 
