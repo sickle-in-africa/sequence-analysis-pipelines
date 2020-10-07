@@ -1,9 +1,0 @@
-{
-  "aligner_id": "bwa",
-  "caller_id": "samtools",
-  "ref_label": "lambda-virus",
-  "cohort_id": "c_1",
-  "threads": 8,
-  "maxmem": "1G",
-  "recal_realign_on": "no"
-}
