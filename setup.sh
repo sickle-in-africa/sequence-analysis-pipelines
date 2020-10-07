@@ -92,6 +92,9 @@ initialize_tools_hash() {
 	tools['jaccard']=${direcs['tls_dir']}/jaccard/jaccard.py
 	tools['generatejson']=${direcs['tls_dir']}/jaccard/generate-json.py
 	tools['benchmarkR']=${direcs['tls_dir']}/jaccard/benchmark.R
+	tools['jq']=${direcs['tls_dir']}/jq-1.6/jq-linux64
+
+	jq=${tools['jq']}
 
 	# update values from tool list json:
 	_update_tool_value_from_list 'bowtie2'
@@ -155,7 +158,7 @@ format_data_directory() {
 
   "tool": "relative/path/to/executable"
 }
-	''' > test.json
+	''' > ${direcs['tls_dir']}/tool-list.json
 	fi
 
 	return $status
@@ -197,6 +200,16 @@ check_installed_tools() {
 	if [[ ! ${tools['bgzip']} == "NULL" ]]; then
 		printf '  checking bgzip...'
 		if _check_bgzip ; then
+			echo "...installed"
+		else
+			echo "...not installed!"
+			status=1
+		fi
+	fi
+
+	if [[ ! ${tools['jq']} == "NULL" ]]; then
+		printf '  checking jq...'
+		if _check_jq ; then
 			echo "...installed"
 		else
 			echo "...not installed!"
@@ -282,6 +295,7 @@ _check_bowtie2() { ${tools['bowtie2']} --help &> /dev/null || return 1; }
 _check_samtools() {	${tools['samtools']} --help &> /dev/null || return 1; }
 _check_bcftools() {	${tools['bcftools']} --help &> /dev/null || return 1; }
 _check_bgzip() { ${tools['bgzip']} --help &> /dev/null || return 1; }
+_check_jq() { ${tools['jq']} --help &> /dev/null || return 1; }
 _check_bwa() { man ${tools['bwa']}.1 &> /dev/null || return 1; }
 _check_gsnap() { ${tools['gsnap']} --help &> /dev/null || return 1; }
 _check_stampy() { python ${tools['stampy']} --help &> /dev/null || return 1; }

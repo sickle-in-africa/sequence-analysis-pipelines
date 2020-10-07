@@ -90,7 +90,7 @@ check_input_json() {
     [[ -s ${inputs["input_json"]} ]] || { echo 'ERROR: please specify an input json file'; return 1; }
 
     # check that it is a valid json file
-    cat ${inputs["input_json"]} | jq -e . 1> /dev/null || { echo 'ERROR in input json file'; return 1; }
+    cat ${inputs["input_json"]} | $jq -e . 1> /dev/null || { echo 'ERROR in input json file'; return 1; }
 }
 
 value_from_json() {
@@ -99,7 +99,7 @@ value_from_json() {
 	local dest=$3		# destination to save value to
 	
 	# save the value, removing any quotation marks if present
-	local value=$(sed -e 's/^"//' -e 's/"$//' <<<"$(cat $file | jq $key)")
+	local value=$(sed -e 's/^"//' -e 's/"$//' <<<"$(cat $file | $jq $key)")
 
 	# if the value is not null then the key exists in the json file, 
 	# and we can update the $dest variable with $value
