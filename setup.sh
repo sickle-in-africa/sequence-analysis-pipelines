@@ -25,7 +25,7 @@ source includes/utilities.sh
 workflow() {
 	local argv=("$@")
 
-	declare -A inputs=( ['log_file']=$(random_id)_setup.log ['study_type']=${argv[0]} ['ref_base']=${argv[1]}'.fa')
+	declare -A inputs=( ['log_file']=$(random_id)_setup.log ['study_type']=${argv[0]} ['ref_label']=${argv[1]})
 	declare -A direcs=( ['pro_dir']=$(pwd) )
 	declare -A tools
 
@@ -77,6 +77,7 @@ initialize_tools_hash() {
 	tools['bowtie2_build']=NULL
 	tools['samtools']=NULL
 	tools['bcftools']=NULL
+	tools['bgzip']=NULL
 	tools['bwa']=NULL
 	tools['gmap_build']=NULL
 	tools['gsnap']=NULL
@@ -97,6 +98,7 @@ initialize_tools_hash() {
 	_update_tool_value_from_list 'bowtie2_build'
 	_update_tool_value_from_list 'samtools'
 	_update_tool_value_from_list 'bcftools'
+	_update_tool_value_from_list 'bgzip'
 	_update_tool_value_from_list 'bwa'
 	_update_tool_value_from_list 'gmap_build'
 	_update_tool_value_from_list 'gsnap'
@@ -114,7 +116,6 @@ _update_tool_value_from_list() {
 		tools[${key}]=${direcs['tls_dir']}/${tools[${key}]}
 	fi
 }
-
 
 format_data_directory() {
 	local status=0
@@ -157,6 +158,16 @@ check_installed_tools() {
 	if [[ ! ${tools['bcftools']} == "NULL" ]]; then
 		printf '  checking bcftools...'
 		if _check_bcftools ; then
+			echo "...installed"
+		else
+			echo "...not installed!"
+			status=1
+		fi
+	fi
+
+	if [[ ! ${tools['bgzip']} == "NULL" ]]; then
+		printf '  checking bgzip...'
+		if _check_bgzip ; then
 			echo "...installed"
 		else
 			echo "...not installed!"
@@ -241,6 +252,7 @@ check_installed_tools() {
 _check_bowtie2() { ${tools['bowtie2']} --help &> /dev/null || return 1; }
 _check_samtools() {	${tools['samtools']} --help &> /dev/null || return 1; }
 _check_bcftools() {	${tools['bcftools']} --help &> /dev/null || return 1; }
+_check_bgzip() { ${tools['bgzip']} --help &> /dev/null || return 1; }
 _check_bwa() { man ${tools['bwa']}.1 &> /dev/null || return 1; }
 _check_gsnap() { ${tools['gsnap']} --help &> /dev/null || return 1; }
 _check_stampy() { python ${tools['stampy']} --help &> /dev/null || return 1; }
@@ -248,6 +260,7 @@ _check_gatk() { ${tools['gatk']} --help &> /dev/null || return 1; }
 _check_fastqc() { ${tools['fastqc']} --help &> /dev/null || return 1; }
 _check_trimmomatic() { java -jar ${tools['trimmomatic']} -version &> /dev/null || return 1; }
 _check_freebayes() { ${tools['freebayes']} --help &> /dev/null || return 1; }
+
 
 
 build_tool_indices() {
@@ -323,11 +336,11 @@ _build_bwa_index() {
 	# 1. 'is' is for short sequences (like virus genomes)
 	# 2. 'bwtsw' is for long sequences (like human genomes)
 
-	if [[ ! -f "${direcs['ref_dir']}/bwa.${inputs['ref_base']%.fa}.amb" ]]; then
+	if [[ ! -f "${direcs['ref_dir']}/${inputs['ref_label']}/bwa.${inputs['ref_label']}.amb" ]]; then
 		${tools['bwa']} index \
-			-p ${direcs['ref_dir']}/bwa.${inputs['ref_base']%.fa} \
+			-p ${direcs['ref_dir']}/${inputs['ref_label']}/bwa.${inputs['ref_label']} \
 			-a is \
-			${direcs['ref_dir']}/${inputs['ref_base']} \
+			${direcs['ref_dir']}/${inputs['ref_label']}/${inputs['ref_label']}.fa.gz \
 			&>> ${inputs['log_file']}
 	else
 		printf "skipping as index exists"
@@ -336,11 +349,12 @@ _build_bwa_index() {
 
 _build_gmap_index() {
 	# this index is used by both gmap and gsnap
-	if [[ ! -d "${direcs['ref_dir']}/gmap.lambda-virus" ]]; then
+	if [[ ! -d "${direcs['ref_dir']}/${inputs['ref_label']}/gmap.${inputs['ref_label']}" ]]; then
 		${tools['gmap_build']} \
-			-D ${direcs['ref_dir']} \
-			-d "gmap.lambda-virus" \
-			${direcs['ref_dir']}/${inputs['ref_base']} \
+			-D ${direcs['ref_dir']}/${inputs['ref_label']} \
+			-d "gmap.${inputs['ref_label']}" \
+			-g \
+			${direcs['ref_dir']}/${inputs['ref_label']}/${inputs['ref_label']}'.fa.gz' \
 			&>> ${inputs['log_file']}
 	else
 		printf "skipping as index exists"
@@ -348,11 +362,11 @@ _build_gmap_index() {
 }
 
 _build_bowtie2_index() {
-	if [[ ! -f "${direcs['ref_dir']}/bowtie2.${inputs['ref_base']%.fa}.1.bt2l" ]]; then
+	if [[ ! -f "${direcs['ref_dir']}/${inputs['ref_label']}/bowtie2.${inputs['ref_label']}.1.bt2l" ]]; then
 		${tools['bowtie2_build']} \
 			--large-index \
-			${direcs['ref_dir']}/${inputs['ref_base']} \
-			${direcs['ref_dir']}/bowtie2.${inputs['ref_base']%.fa} \
+			${direcs['ref_dir']}/${inputs['ref_label']}/${inputs['ref_label']}'.fa.gz' \
+			${direcs['ref_dir']}/${inputs['ref_label']}/bowtie2.${inputs['ref_label']} \
 			&>> ${inputs['log_file']}
 	else
 		printf "skipping as index exists"
@@ -362,20 +376,20 @@ _build_bowtie2_index() {
 _build_stampy_index() {
 
 	# build index
-	if [[ ! -f ${direcs['ref_dir']}/stampy.${inputs['ref_base']%.fa}.stidx ]]; then
+	if [[ ! -f ${direcs['ref_dir']}/${inputs['ref_label']}/stampy.${inputs['ref_label']}.stidx ]]; then
 		python ${tools['stampy']} \
-			-G ${direcs['ref_dir']}/stampy.${inputs['ref_base']%.fa} \
-			${direcs['ref_dir']}/${inputs['ref_base']} \
+			-G ${direcs['ref_dir']}/${inputs['ref_label']}/stampy.${inputs['ref_label']} \
+			${direcs['ref_dir']}/${inputs['ref_label']}/${inputs['ref_label']}'.fa.gz' \
 			&>> ${inputs['log_file']}
 	else
 		printf "skipping as index "
 	fi
 
 	# build hash
-	if [[ ! -f ${direcs['ref_dir']}/stampy.${inputs['ref_base']%.fa}.sthash ]]; then
+	if [[ ! -f ${direcs['ref_dir']}/${inputs['ref_label']}/stampy.${inputs['ref_label']}.sthash ]]; then
 		python ${tools['stampy']} \
-			-g ${direcs['ref_dir']}/stampy.${inputs['ref_base']%.fa} \
-			-H ${direcs['ref_dir']}/stampy.${inputs['ref_base']%.fa} \
+			-g ${direcs['ref_dir']}/${inputs['ref_label']}/stampy.${inputs['ref_label']} \
+			-H ${direcs['ref_dir']}/${inputs['ref_label']}/stampy.${inputs['ref_label']} \
 			&>> ${inputs['log_file']}
 	else
 		printf "and hash exists"
@@ -385,10 +399,11 @@ _build_stampy_index() {
 
 _build_samtools_index() {
 
-	if [[ ! -f "${direcs['ref_dir']}/samtools.${inputs['ref_base']%.fa}.fai" ]]; then
+	if [[ ! -f "${direcs['ref_dir']}/${inputs['ref_label']}/samtools.${inputs['ref_label']}.fai" ]]; then
 		${tools['samtools']} faidx \
-			${direcs['ref_dir']}/${inputs['ref_base']} \
-			> ${direcs['ref_dir']}/${inputs['ref_base']%.fa}.fai
+			${direcs['ref_dir']}/${inputs['ref_label']}/${inputs['ref_label']}'.fa.gz' \
+			> ${direcs['ref_dir']}/${inputs['ref_label']}/${inputs['ref_label']}.fai \
+			2>> ${inputs['log_file']}
 	else
 		printf "skipping as index exists"
 	fi
@@ -397,10 +412,10 @@ _build_samtools_index() {
 
 _build_gatk_dict() {
 
-	if [[ ! -f "${direcs['ref_dir']}/${inputs['ref_base']%.fa}.dict" ]]; then
+	if [[ ! -f "${direcs['ref_dir']}/${inputs['ref_label']}/${inputs['ref_label']}.dict" ]]; then
 		${tools['gatk']} CreateSequenceDictionary \
-			-R ${direcs['ref_dir']}/${inputs['ref_base']} \
-			-O ${direcs['ref_dir']}/${inputs['ref_base']%.fa}.dict \
+			-R ${direcs['ref_dir']}/${inputs['ref_label']}/${inputs['ref_label']}'.fa.gz' \
+			-O ${direcs['ref_dir']}/${inputs['ref_label']}/${inputs['ref_label']}'.dict' \
 			&>> ${inputs['log_file']}
 	else
 		printf "skipping as dictionary exists"

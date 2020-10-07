@@ -49,3 +49,4 @@ fastqc=/home/jack/Local/GeneMap/sequence-analysis-pipelines/tools/fastqc/fastqc
 bowtie2=/home/jack/Local/GeneMap/sequence-analysis-pipelines/tools/bowtie2-2.4.1-linux-x86_64/bowtie2
 generatejson=/home/jack/Local/GeneMap/sequence-analysis-pipelines/tools/jaccard/generate-json.py
 bwa=/home/jack/Local/GeneMap/sequence-analysis-pipelines/tools/bwa-0.7.17/bwa
+bgzip=/home/jack/Local/GeneMap/sequence-analysis-pipelines/tools/htslib-1.10.2/bgzip

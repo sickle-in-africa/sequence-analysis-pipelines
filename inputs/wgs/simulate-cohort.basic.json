@@ -1,10 +1,10 @@
 {
   "cohort_id": "c_1",
-  "ref_base": "lambda-virus.fa",
+  "ref_label": "lambda-virus",
   "read_type": "pe",
 
   "threads": 8,
-  "n_samples": 15,
+  "n_samples": 5,
 
   "has_snps": 1,
   "psnp": 0.001,

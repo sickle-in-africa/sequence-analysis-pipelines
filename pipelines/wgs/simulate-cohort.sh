@@ -25,6 +25,7 @@ workflow() {
 
 	custom_call simulate_cohort_reads "simulating reads for the cohort..."
 
+	rm ${inputs['tmp_prefix']}*
 }
 
 
@@ -45,24 +46,32 @@ initialize_inputs_hash() {
 
 	# 2. update parameters with arguments from the input json file
 	printf '  updating with arguments from input json file...'
-	value_from_json ${inputs["input_json"]} '.cohort_id'	inputs["cohort_id"]
-	value_from_json ${inputs["input_json"]} '.ref_base'		inputs["ref_base"] && inputs["ref"]=${ref_dir}/${inputs["ref_base"]}
-	value_from_json ${inputs["input_json"]} '.read_type'	inputs["read_type"]
-	value_from_json ${inputs["input_json"]} '.n_samples'	inputs["n_samples"]
-	value_from_json ${inputs["input_json"]} '.threads'		inputs["threads"]
+	_update_input_value_from_json 'cohort_id'
+	_update_input_value_from_json 'ref_label'
+	_update_input_value_from_json 'read_type'
+	_update_input_value_from_json 'n_samples'
+	_update_input_value_from_json 'threads'
+
+	# 3. set derivative parameters
+	inputs['ref']=${ref_dir}/${inputs['ref_label']}/${inputs['ref_label']}.fa.gz
 	echo '...done'
 
-	# 3. check that inputs make sense
+	# 4. check that inputs make sense
 	printf '  checking that parameter values make sense...'
 	check_id "cohort" ${inputs["cohort_id"]} || { echo 'invalid choice of cohort id'; status=1; }
 	check_ref || status=1
 	check_int ${inputs["n_samples"]} n_samples || status=1
 	[[ $status == 0 ]] && echo '...done'
 
-	# 4. set up logging information
+	# 5. set up logging information
 	set_up_tmps_and_logs || { echo 'seting up temp and log directory failed'; status=1; }
 
 	return $status
+}
+
+_update_input_value_from_json() {
+	local key=$1
+	value_from_json ${inputs['input_json']} '.'${key}	inputs[${key}]
 }
 
 simulate_cohort_reads() {
@@ -76,12 +85,15 @@ simulate_cohort_reads() {
 
 _mutate_reference() {
 
+	$bgzip -cd ${inputs["ref"]} > ${inputs['tmp_prefix']}${inputs['ref_label']}.fa
+
 	$simulate MutateReference \
-		--input_ref ${inputs["ref"]} \
+		--input_ref ${inputs['tmp_prefix']}${inputs['ref_label']}.fa \
 		--output_ref ${inputs['tmp_prefix']}${inputs["cohort_id"]}.fa \
 		--input_json ${inputs["input_json"]} \
 		--output_vcf ${vcf_dir}/${inputs["cohort_id"]}.truth.g.vcf \
 		&>> ${inputs["log_prefix"]}${inputs["cohort_id"]}.log
+
 }
 
 _generate_reads() {

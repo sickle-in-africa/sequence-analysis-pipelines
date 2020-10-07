@@ -103,7 +103,7 @@ _align_with_bwa() {
 	align_options="mem \
 		-M \
 		-t ${inputs['threads']} \
-		${ref_dir}/bwa.${inputs['ref_base']%.fa} \
+		${ref_dir}/${inputs['ref_label']}/bwa.${inputs['ref_label']} \
 		${rds_dir}/${inputs['cohort_id']}.{1}.raw_1P.fq.gz \
 		${rds_dir}/${inputs['cohort_id']}.{1}.raw_2P.fq.gz"
 
@@ -164,8 +164,8 @@ _align_with_gsnap() {
 	log_file_string="${inputs["log_prefix"]}${inputs["cohort_id"]}.{1}.log"
 
 	align_options="--gunzip \
-		--dir ${ref_dir} \
-		--db gmap.${inputs['ref_base']%.fa} \
+		--dir ${ref_dir}/${inputs['ref_label']} \
+		--db gmap.${inputs['ref_label']} \
 		-t ${inputs['threads']} \
 		-A sam \
 		--npath=1 \
@@ -201,7 +201,7 @@ _align_with_bowtie2() {
 
 	align_options="\
 		-p ${inputs['threads']} \
-		-x ${ref_dir}/bowtie2.${inputs['ref_base']%.fa} \
+		-x ${ref_dir}/${inputs['ref_label']}/bowtie2.${inputs['ref_label']} \
 		-1 ${rds_dir}/${inputs['cohort_id']}.{1}.raw_1P.fq.gz \
 		-2 ${rds_dir}/${inputs['cohort_id']}.{1}.raw_2P.fq.gz"
 
@@ -229,8 +229,8 @@ _improve_alignment_with_stampy() {
 	log_file_string="${inputs["log_prefix"]}${inputs["cohort_id"]}.{1}.log"
 
 	align_options="${stampy} \
-		-g ${ref_dir}/stampy.${inputs['ref_base']%.fa} \
-		-h ${ref_dir}/stampy.${inputs['ref_base']%.fa} \
+		-g ${ref_dir}/${inputs['ref_label']}/stampy.${inputs['ref_label']} \
+		-h ${ref_dir}/${inputs['ref_label']}/stampy.${inputs['ref_label']} \
 		-t${inputs['threads']} \
 		--readgroup=ID:{1},SM:{1},PL:{4} \
 		--bamkeepgoodreads -M ${bam_dir}/${inputs['prefix']}.{1}.norgs.bam"
