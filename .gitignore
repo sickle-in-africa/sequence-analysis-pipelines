@@ -1,15 +1,13 @@
 includes/locations.sh
 
-vendor
-Gemfile
-Gemfile.lock
-_site
-.bundle
+docs/.bundle
+docs/_site
+docs/vendor
+docs/Gemfile.lock
 
 .gitignore
 
 data
-docs
 
 tools/bwa-0.7.17
 tools/samtools-1.10
