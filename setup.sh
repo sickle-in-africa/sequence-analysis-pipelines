@@ -110,7 +110,9 @@ initialize_tools_hash() {
 _update_tool_value_from_list() {
 	local key=$1
 	value_from_json ${direcs['tls_dir']}/tool-list.json '.'${key} tools[${key}]
-	tools[${key}]=${direcs['tls_dir']}/${tools[${key}]}
+	if [[ ! ${tools[${key}]} == "NULL" ]]; then
+		tools[${key}]=${direcs['tls_dir']}/${tools[${key}]}
+	fi
 }
 
 
@@ -261,7 +263,7 @@ build_tool_indices() {
 		fi
 	fi
 
-	if [[ ! ${tools['gmap']} == "NULL" ]]; then
+	if [[ ! ${tools['gsnap']} == "NULL" ]]; then
 		printf '  building gmap index...'
 		if _build_gmap_index ; then
 			echo "...done"
