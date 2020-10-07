@@ -120,6 +120,10 @@ _update_tool_value_from_list() {
 format_data_directory() {
 	local status=0
 
+	# data
+
+	[[ ! -d ${direcs['dat_dir']} ]] &&  { mkdir ${direcs['dat_dir']}; echo "  created ${direcs['dat_dir']}"; }
+
 	[[ ! -d ${direcs['bam_dir']} ]] &&  { mkdir ${direcs['bam_dir']}; echo "  created ${direcs['bam_dir']}"; }
 	[[ ! -d ${direcs['fqc_dir']} ]] &&  { mkdir ${direcs['fqc_dir']}; echo "  created ${direcs['fqc_dir']}"; }
 	[[ ! -d ${direcs['log_dir']} ]] &&  { mkdir ${direcs['log_dir']}; echo "  created ${direcs['log_dir']}"; }
@@ -128,6 +132,31 @@ format_data_directory() {
 	[[ ! -d ${direcs['sam_dir']} ]] &&  { mkdir ${direcs['sam_dir']}; echo "  created ${direcs['sam_dir']}"; }
 	[[ ! -d ${direcs['tmp_dir']} ]] &&  { mkdir ${direcs['tmp_dir']}; echo "  created ${direcs['tmp_dir']}"; }
 	[[ ! -d ${direcs['vcf_dir']} ]] &&  { mkdir ${direcs['vcf_dir']}; echo "  created ${direcs['vcf_dir']}"; }
+
+	# inputs
+
+	[[ ! -d ${direcs['pin_dir']} ]] &&  { mkdir ${direcs['pin_dir']}; echo "  created ${direcs['pin_dir']}"; }
+	[[ ! -d ${direcs['pin_dir']}/${inputs['study_type']} ]] \
+		&&  { mkdir ${direcs['pin_dir']}/${inputs['study_type']}; echo "  created ${direcs['pin_dir']}/${inputs['study_type']}"; }
+
+	# tools
+
+	if [[ ! -f ${direcs['tls_dir']}/tool-list.json ]]; then
+		echo -e '''{
+  "#1": "tools included in the github repo (no need for installation):",
+
+  "simulate": "simulate-0.1/simulate.pl",
+  "jaccard": "jaccard/jaccard.py",
+  "generatejson": "jaccard/generate-json.py",
+  "benchmarkR": "jaccard/benchmark.R",
+
+
+  "#2": "external tools to be installed:",
+
+  "tool": "relative/path/to/executable"
+}
+	''' > test.json
+	fi
 
 	return $status
 }
