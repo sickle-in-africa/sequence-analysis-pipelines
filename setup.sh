@@ -437,7 +437,7 @@ _build_stampy_index() {
 
 _build_samtools_index() {
 
-	if [[ ! -f "${direcs['ref_dir']}/${inputs['ref_label']}/samtools.${inputs['ref_label']}.fai" ]]; then
+	if [[ ! -f "${direcs['ref_dir']}/${inputs['ref_label']}/${inputs['ref_label']}.fai" ]]; then
 		${tools['samtools']} faidx \
 			${direcs['ref_dir']}/${inputs['ref_label']}/${inputs['ref_label']}'.fa.gz' \
 			> ${direcs['ref_dir']}/${inputs['ref_label']}/${inputs['ref_label']}.fai \
