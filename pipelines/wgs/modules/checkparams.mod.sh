@@ -40,20 +40,20 @@ function check_ref() {
        fi
 }
 function check_bwa_idx() {
-  if [[ ! -f "${ref_dir}/bwa.${inputs['ref_base']%.fa}.amb" ]]; then
-    echo " can't find the bwa index files for ${inputs["ref_base"]}"
+  if [[ ! -f "${ref_dir}/${inputs['ref_label']}/bwa.${inputs['ref_label']}.amb" ]]; then
+    echo " can't find the bwa index files for ${inputs["ref_label"]}"
 		return 1
   fi
 }
 
 function check_gatk_dict() {
-	if [[ ! -f "${ref_dir}/${inputs['ref_base']%.fa}.dict" ]]; then
+	if [[ ! -f "${ref_dir}/${inputs['ref_label']}/${inputs['ref_label']}.dict" ]]; then
 		echo " can't find gatk reference dictionary"
 		return 1
 	fi
 }
 function check_samtools_fai() {
-       if [[ ! -f "${ref_dir}/${inputs['ref_base']%.fa}.fai" ]]; then
+       if [[ ! -f "${ref_dir}/${inputs['ref_label']}/${inputs['ref_label']}.fai" ]]; then
           echo " can't find samtools fai index"
           return 1
        fi

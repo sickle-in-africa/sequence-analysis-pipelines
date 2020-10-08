@@ -118,7 +118,7 @@ tar -C <sap-path>/tools -xvf bwa-X.X.X
 cd <sap-path>/tools/bwa-X.X.X
 make
 ```
-There should now be build files inside the `bcftools-X.X.X` folder, and the bwa main executable file `bwa`. 
+There should now be build files inside the `bwa-X.X.X` folder, and the bwa main executable file `bwa`. 
 
 3. Test the build was successful by changing to the bwa directory and accessing the help menu:
 ```
@@ -128,7 +128,7 @@ cd <sap-path>/tools/bwa-X.X.X
 
 4. Tell the SAP library where to find the bwa executable, `<sap-path>/tools/bwa-X.X.X/bwa`. For this, you simply add the path of this file, *relative to the SAP library tools directory* to the file `<sap-path>/tools/tool-list.json` as in the following example:
 ```
-"bcftools": "bwa-X.X.X/bwa",
+"bwa": "bwa-X.X.X/bwa",
 ```
 Now, when the setup script is run, this tool will be accessible to the library. Remember that the quotes and comma at the end of the line in the above example are needed to ensure that `tool-list.json` is a valid json file. If this is the last entry in the tool list, the final comma should be ommited. 
 

@@ -11,6 +11,7 @@
 #!/bin/bash
 
 source includes/locations.sh
+source ${pro_dir}/includes/config.sh
 source ${pro_dir}/includes/utilities.sh
 
 workflow() { 

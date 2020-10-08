@@ -67,27 +67,28 @@ initialize_inputs_hash() {
 
 	# 2. update parameters with arguments from the input json file
 	printf '  updating with arguments from input json file...'
-	value_from_json ${inputs["input_json"]} '.cohort_id'   inputs["cohort_id"]
-	value_from_json ${inputs["input_json"]} '.meta_base'   inputs["meta_base"]
+	_update_input_value_from_json 'cohort_id'
+	_update_input_value_from_json 'meta_base'
+	_update_input_value_from_json 'threads'
+	_update_input_value_from_json 'trim_minlen'
+	_update_input_value_from_json 'trim_leadx'
+	_update_input_value_from_json 'trim_trailx'
+	_update_input_value_from_json 'trim_av_qual_min'
+	_update_input_value_from_json 'ref_label'
+	_update_input_value_from_json 'blist'
+	_update_input_value_from_json 'glist'
+	_update_input_value_from_json 'ped'
+	_update_input_value_from_json 'dbsnp'
+
+	# 3. set derivative parameters
 	if [[ ! "${inputs["cohort_id"]}" == NULL ]]; then
 		inputs["meta"]=${rds_dir}/${inputs["cohort_id"]}.samples.list
 	elif [[ ! "${inputs["meta_base"]}" == NULL ]]; then
 		inputs["meta"]=${rds_dir}/${inputs["meta_base"]}
 	fi
-	value_from_json ${inputs["input_json"]} '.threads'     inputs["threads"]
-	value_from_json ${inputs["input_json"]} '.trim_minlen' inputs["trim_minlen"]
-	value_from_json ${inputs["input_json"]} '.trim_leadx'  inputs["trim_leadx"]
-	value_from_json ${inputs["input_json"]} '.trim_trailx' inputs["trim_trailx"]
-	value_from_json ${inputs["input_json"]} '.trim_av_qual_min' inputs["trim_av_qual_min"]
-	value_from_json ${inputs["input_json"]} '.ref_base'	   inputs["ref_base"] && inputs["ref"]=${ref_dir}/${inputs["ref_base"]}
-	value_from_json ${inputs["input_json"]} '.blist' 	   inputs["blist"]
-	value_from_json ${inputs["input_json"]} '.glist' 	   inputs["glist"]
-	value_from_json ${inputs["input_json"]} '.ped' 	   	   inputs["ped"]
-	value_from_json ${inputs["input_json"]} '.dbsnp' 	   inputs["dbsnp"]
+	inputs['prefix']="${inputs['cohort_id']}.${inputs['aligner_id']}.${inputs['caller_id']}.${inputs['ref_label']}";	# prefix for output files
+	inputs["ref"]=${ref_dir}/${inputs['ref_label']}/${inputs['ref_label']}.fa.gz
 	echo '...done.'
-
-	# 3. set derivative parameters
-	inputs['prefix']="${inputs['cohort_id']}.${inputs['aligner_id']}.${inputs['caller_id']}.${inputs['ref_base']%.fa}";	# prefix for output files
 
 	# 4. check that inputs make sense
 	printf '  checking that parameter values make sense...'
@@ -116,6 +117,11 @@ initialize_inputs_hash() {
 	set_up_tmps_and_logs || { echo 'seting up temp and log directory failed'; status=1; }
 
 	return $status
+}
+
+_update_input_value_from_json() {
+	local key=$1
+	value_from_json ${inputs['input_json']} '.'${key}	inputs[${key}]
 }
 
 _check_aligner_installed() {
@@ -352,7 +358,7 @@ _aligning_reads_to_reference() {
 
 	option_string="mem \
 		-t ${inputs['threads']} \
-		${ref_dir}/bwa.${inputs['ref_base']%.fa} ${rds_dir}/{2} ${rds_dir}/{3} \
+		${ref_dir}/${inputs['ref_label']}/bwa.${inputs['ref_label']} ${rds_dir}/{2} ${rds_dir}/{3} \
 		-o ${sam_dir}/${inputs['prefix']}.{1}.sam"
 
 	log_file_string="${inputs["log_prefix"]}${inputs["cohort_id"]}.{1}.log"

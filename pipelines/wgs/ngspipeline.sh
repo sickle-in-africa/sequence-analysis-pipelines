@@ -17,6 +17,7 @@
 #!/bin/bash
 
 source includes/locations.sh
+source ${pro_dir}/includes/config.sh
 source ${pro_dir}/includes/utilities.sh
 source ${pip_dir}/wgs/modules/checkparams.mod.sh
 source ${pip_dir}/wgs/modules/ngspipeline-align.mod.sh
@@ -48,8 +49,8 @@ initialize_inputs_hash() {
 	printf '  setting default parameter values...'
 	# aligner() params:
 	inputs['aligner_id']=NULL;			# name of he chosen aligner tool
-	inputs['caller_id']=NULL;				# name of the chosen variant caller tool
-	inputs['ref_base']=NULL;			# basename of the reference sequence file
+	inputs['caller_id']=NULL;			# name of the chosen variant caller tool
+	inputs['ref_label']=NULL;			# basename of the reference sequence file
 	inputs['cohort_id']=NULL;			# prefix for outputs
 	inputs['threads']=1;				# number of threads to parallelize over
 	inputs['maxmem']=100M;				# max memory per thread (approximately)
@@ -60,17 +61,17 @@ initialize_inputs_hash() {
 	printf '  updating with arguments from input json file...'
 	_update_input_value_from_json 'aligner_id'
 	_update_input_value_from_json 'caller_id'
-	_update_input_value_from_json 'ref_base'
+	_update_input_value_from_json 'ref_label'
 	_update_input_value_from_json 'cohort_id'
 	_update_input_value_from_json 'threads'
 	_update_input_value_from_json 'maxmem'
 	_update_input_value_from_json 'recal_realign_on'
 
 	# 3. set derivative parameters
-	inputs['ref']=${ref_dir}/${inputs['ref_base']}
-	inputs['prefix']="${inputs['cohort_id']}.${inputs['aligner_id']}.${inputs['caller_id']}.${inputs['ref_base']%.fa}";	# prefix for output files
+	inputs['ref']=${ref_dir}/${inputs['ref_label']}/${inputs['ref_label']}.fa.gz
+	inputs['prefix']="${inputs['cohort_id']}.${inputs['aligner_id']}.${inputs['caller_id']}.${inputs['ref_label']}";	# prefix for output files
 	inputs['log_file']="${log_dir}/${inputs['prefix']}.log";							# output lof file path 
-	inputs['idx']="${ref_dir}/${inputs['aligner_id']}.${inputs['ref_base']}";			# aligner index file
+	inputs['idx']="${ref_dir}/${inputs['aligner_id']}.${inputs['ref_label']}";			# aligner index file
 	inputs['samples_list']=${rds_dir}/${inputs['cohort_id']}.samples.list
 	[[ $status == 0 ]] && echo '...done'
 

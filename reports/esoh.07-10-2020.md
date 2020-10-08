@@ -1,4 +1,12 @@
-#-- Libraries required for bcftools installation on a new linux computer
+Technical Report
+================
+
+* Kevin Esoh
+* 07-10-2020
+* installing external tools on CHPC
+
+
+## Libraries required for bcftools installation on a new linux computer
 
 bunzip2 bcftools.1.11.X.tar.bz2
 tar -xvf bcftools.1.11.X.tar
@@ -11,7 +19,7 @@ make
 sudo make install
 (worked on CHPC)
 
-#-- Samtools installation
+## Samtools installation
 
 sudo apt-get install libncurses5 libncurses5-dev (could not get on the CHPC)
 bunzip2 samtools.1.11.X.tar.bz2
@@ -19,29 +27,29 @@ tar -xvf samtools.1.11.X.tar
 make all all-htslib
 make install install-htslib
 
-#-- freebayes: contains several submodules that need to be cloned as well
-# A simple git clone git@github.com:ekg/freebayes.git did not work for me
+## freebayes: contains several submodules that need to be cloned as well
+A simple git clone git@github.com:ekg/freebayes.git did not work for me
 
 git clone --recurse-submodules -j8 git@github.com:ekg/freebayes.git # works (-j option not avalable for git version on the CHPC)
 make -j4 (no cmake on CHPC)
 
-#-- GATK (find GATK archives here https://console.cloud.google.com/storage/browser/gatk-software/package-archive/gatk/)
-#-- Install GATK3
+## GATK (find GATK archives here https://console.cloud.google.com/storage/browser/gatk-software/package-archive/gatk/)
+## Install GATK3
 Download latest version (GATK v3.8-1 from archive site)
 bunzip2 package-archive_gatk_GenomeAnalysisTK-3.8-1-0-gf15c1c3ef.tar.bz2
 tar -xvf package-archive_gatk_GenomeAnalysisTK-3.8-1-0-gf15c1c3ef.tar
 
-#test
+## test
 cd GenomeAnalysisTK-3.8-1-0-gf15c1c3ef
 java -jar GenomeAnalysisTK.jar
 
-# GATK3 official docker: https://hub.docker.com/r/broadinstitute/gatk3/tags
+GATK3 official docker: https://hub.docker.com/r/broadinstitute/gatk3/tags
 
-# GATK4: for a new Ubuntu 20 installation, python3 is the default, and python2 may not be installed
-# In this case. ./gatk --help will fail
+GATK4: for a new Ubuntu 20 installation, python3 is the default, and python2 may not be installed
+In this case. ./gatk --help will fail
 sudo apt-get install python # will resolve the issue
 
-#-- Stampy: get python-dev
+## Stampy: get python-dev
 sudo apt-get install python-dev
 make # will make maptools.so required for stampy to run
 
