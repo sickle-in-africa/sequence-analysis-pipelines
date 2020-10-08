@@ -33,8 +33,13 @@ $ make install install-htslib
 ## freebayes: contains several submodules that need to be cloned as well
 A simple ```git clone git@github.com:ekg/freebayes.git``` did not work for me
 
-```git clone --recurse-submodules -j8 git@github.com:ekg/freebayes.git``` \# works (-j option not avalable for git version on the CHPC)
-```make -j4``` (no cmake on CHPC)
+```git clone --recurse-submodules -j8 git@github.com:ekg/freebayes.git
+```
+works (-j option not avalable for git version on the CHPC)
+
+```make -j4
+```
+(no cmake on CHPC)
 
 ## GATK 
 Find GATK archives here https://console.cloud.google.com/storage/browser/gatk-software/package-archive/gatk/
