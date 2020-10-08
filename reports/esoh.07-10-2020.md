@@ -44,7 +44,7 @@ works (-j option not avalable for git version on the CHPC)
 ## GATK 
 Find GATK archives here https://console.cloud.google.com/storage/browser/gatk-software/package-archive/gatk/
 
-## Install GATK3
+### Install GATK3
 Download latest version (GATK v3.8-1 from archive site)
 ```
 $ bunzip2 package-archive_gatk_GenomeAnalysisTK-3.8-1-0-gf15c1c3ef.tar.bz2
@@ -59,7 +59,7 @@ $ java -jar GenomeAnalysisTK.jar
 
 Find GATK3 official docker here: https://hub.docker.com/r/broadinstitute/gatk3/tags
 
-## GATK4
+### GATK4
 For a new Ubuntu 20 installation, python3 is the default, and python2 may not be installed
 In this case 
 ```./gatk --help``` will fail
