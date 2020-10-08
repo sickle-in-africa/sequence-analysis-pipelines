@@ -9,6 +9,7 @@
 #!/usr/bin/env bash
 
 source includes/locations.sh
+source ${pro_dir}/includes/config.sh
 source ${pro_dir}/includes/utilities.sh
 source ${pip_dir}/wgs/modules/checkparams.mod.sh
 source ${pip_dir}/wgs/modules/geneMapNGS.mod.sh
