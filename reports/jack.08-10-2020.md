@@ -5,7 +5,7 @@ Setting up SAP library on CHPC
 ```
 $ cd /mnt/lustre/groups/CBBI1243/SADaCC/sequence-analysis-projects/jmorrice/
 ```
-1. clone the git repo
+2. clone the git repo
 ```
 $ git clone https://github.com/sickle-in-africa/sequence-analysis-pipelines.git
 Cloning into 'sequence-analysis-pipelines'...
@@ -17,26 +17,26 @@ Receiving objects: 100% (721/721), 44.55 MiB | 10.39 MiB/s, done.
 Resolving deltas: 100% (257/257), done.
 
 ```
-1. rename it something useful and move into the folder
+3. rename it something useful and move into the folder
 ```
 $ mv sequence-analysis-pipelines/ wgs-project
 $ cd wgs-project
 ```
-1. create a data directory, and references directory
+4. create a data directory, and references directory
 ```
 $ mkdir data
 $ mkdir data/references
 $ ls
 data  docs  includes  LICENSE  pipelines  README.md  reports  sap.sh  setup.sh  test-suites  tools
 ```
-1. create a soft link in `data/references` to the lambda-virus folder in `reference-sequence-data`:
+5. create a soft link in `data/references` to the lambda-virus folder in `reference-sequence-data`:
 ```
 $ cd data/references/
 $ ln -s /mnt/lustre/groups/CBBI1243/SADaCC/reference-sequence-data/lambda-virus lambda-virus
 $ ls
 lambda-virus
 ```
-1. move now to the project root folder and run the setup script
+6. move now to the project root folder and run the setup script
 ```
 $ cd ../..
 $ ./setup.sh wgs lambda-virus
@@ -88,7 +88,7 @@ checking which tools have been installed...
 ...failed!
 ```
 I get lots of errors at this stage. Thats ok.
-1. run the setup script again in the same way
+7. run the setup script again in the same way
 ```
 $ ./setup.sh wgs lambda-virus
 ./setup.sh: line 24: includes/config.sh: No such file or directory
@@ -108,7 +108,7 @@ checking which tools have been installed...
 building indices for all installed tools...
 ...done.
 ```
-1. we get another another error. We need to create a config.sh script:
+8. we get another another error. We need to create a config.sh script:
 ```
 $ cd includes
 echo '''
@@ -118,18 +118,18 @@ module load chpc/gnu/parallel-20180622
 module load chpc/java/11.0.6
 ''' > config.sh
 ```
-1. run the setup script again, the error should be gone
+9. run the setup script again, the error should be gone
 ```
 $ cd ../
 $ ./setup.sh wgs lambda-virus
 ```
-1. now we need to add some tools. they are already installed so now we just need to create soft links to them.
+10. now we need to add some tools. they are already installed so now we just need to create soft links to them.
 ```
 $ cd tools
 $ ls
 jaccard  jq-1.6  tool-list.json
 ```
-1. create links to the tools
+11. create links to the tools
 ```
 $ ln -s /mnt/lustre/groups/CBBI1243/SADaCC/sequence-analysis-tools/gatk-4.1.7.0 gatk-4.1.7.0
 $ ln -s /mnt/lustre/groups/CBBI1243/SADaCC/sequence-analysis-tools/bcftools-1.11 bcftools-1.11
@@ -140,7 +140,7 @@ $ ln -s /mnt/lustre/groups/CBBI1243/SADaCC/sequence-analysis-tools/sequence-simu
 $ ln -s /mnt/lustre/groups/CBBI1243/SADaCC/sequence-analysis-tools/FastQC FastQC
 $ ln -s /mnt/lustre/groups/CBBI1243/SADaCC/sequence-analysis-tools/Trimmomatic-0.39 Trimmomatic-0.39
 ```
-1. add these tools to the tool list
+12. add these tools to the tool list
 ```
 $ nano tool-list.json
 ```
@@ -158,7 +158,7 @@ the file `tool-list.json` should look like this:
   "gatk": "gatk-4.1.7.0/gatk"
 }
 ```
-1. now finally run the setup script again:
+13. now finally run the setup script again:
 ```
 $ cd ../
 $ ./setup.sh wgs lambda-virus
@@ -189,7 +189,7 @@ building indices for all installed tools...
 ...done.
 
 ```
-1. now create some input files for the pipelines:
+14. now create some input files for the pipelines:
 ```
 $ cd inputs/wgs/
 nano simulate-cohort.basic.json
@@ -234,7 +234,7 @@ and create another identical file:
 $ cp gatkall.basic.json bcfall.basic.json
 ```
 Now we are ready to run the pipelines. 
-1. simulate the cohort reads:
+15. simulate the cohort reads:
 ```
 $ ./sap.sh wgs simulate-cohort basic
 checking simulation input json file was provided...
@@ -252,7 +252,7 @@ simulating reads for the cohort...
   sorting truth gvcf files......done
 ...done.
 ```
-1. call variants with bcfall
+16. call variants with bcfall
 ```
 $ ./sap.sh wgs bcfall basic
 checking a pipeline input json file was provided...
@@ -287,7 +287,7 @@ calling variants with bcftools...
   unzipping the joint-called cohort gvcf file......done
 ...done.
 ```
-1. call variants with gatkall
+17. call variants with gatkall
 ```
 $ ./sap.sh wgs gatkall basic
 checking a pipeline input json file was provided...
@@ -323,7 +323,7 @@ calling variants with gatk...
   genotyping cohort combined gvcf file......done
 ...done.
 ```
-1. now check the final vcf files overlap a bit
+18. now check the final vcf files overlap a bit
 ```
 $ cd data/vcf/
 $ ls
