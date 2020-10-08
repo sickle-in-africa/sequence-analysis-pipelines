@@ -21,6 +21,9 @@
 #!/bin/bash
 
 source includes/utilities.sh
+source includes/config.sh
+
+echo $local_perl_module_path
 
 workflow() {
 	local argv=("$@")
@@ -88,7 +91,7 @@ initialize_tools_hash() {
 	tools['freebayes']=NULL
 
 	## these tools are inlcuded in the github repo (no need for installation)
-	tools['simulate']=${direcs['tls_dir']}/simulate-0.1/simulate.pl
+	tools['simulate']=${direcs['tls_dir']}/sequence-simulator/simulate.pl
 	tools['jaccard']=${direcs['tls_dir']}/jaccard/jaccard.py
 	tools['generatejson']=${direcs['tls_dir']}/jaccard/generate-json.py
 	tools['benchmarkR']=${direcs['tls_dir']}/jaccard/benchmark.R
@@ -146,15 +149,7 @@ format_data_directory() {
 
 	if [[ ! -f ${direcs['tls_dir']}/tool-list.json ]]; then
 		echo -e '''{
-  "#1": "tools included in the github repo (no need for installation):",
-
-  "simulate": "simulate-0.1/simulate.pl",
-  "jaccard": "jaccard/jaccard.py",
-  "generatejson": "jaccard/generate-json.py",
-  "benchmarkR": "jaccard/benchmark.R",
-
-
-  "#2": "external tools to be installed:",
+  "#": "external tools to be installed:",
 
   "tool": "relative/path/to/executable"
 }

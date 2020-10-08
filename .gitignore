@@ -1,4 +1,5 @@
 includes/locations.sh
+includes/config.sh
 
 docs/.bundle
 docs/_site
