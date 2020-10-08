@@ -88,6 +88,7 @@ checking which tools have been installed...
 ...failed!
 ```
 I get lots of errors at this stage. Thats ok.
+
 7. run the setup script again in the same way
 ```
 $ ./setup.sh wgs lambda-virus
@@ -111,12 +112,12 @@ building indices for all installed tools...
 8. we get another another error. We need to create a config.sh script:
 ```
 $ cd includes
-echo '''
-# load CHPC modules:
-module load chpc/perl/5.28.0
-module load chpc/gnu/parallel-20180622
-module load chpc/java/11.0.6
-''' > config.sh
+$ echo '''
+> # load CHPC modules:
+> module load chpc/perl/5.28.0
+> module load chpc/gnu/parallel-20180622
+> module load chpc/java/11.0.6
+> ''' > config.sh
 ```
 9. run the setup script again, the error should be gone
 ```
@@ -129,7 +130,7 @@ $ cd tools
 $ ls
 jaccard  jq-1.6  tool-list.json
 ```
-11. create links to the tools
+11. from within the `wgs-project/tools` folder, create links to the tools
 ```
 $ ln -s /mnt/lustre/groups/CBBI1243/SADaCC/sequence-analysis-tools/gatk-4.1.7.0 gatk-4.1.7.0
 $ ln -s /mnt/lustre/groups/CBBI1243/SADaCC/sequence-analysis-tools/bcftools-1.11 bcftools-1.11
@@ -234,6 +235,7 @@ and create another identical file:
 $ cp gatkall.basic.json bcfall.basic.json
 ```
 Now we are ready to run the pipelines. 
+
 15. simulate the cohort reads:
 ```
 $ ./sap.sh wgs simulate-cohort basic
