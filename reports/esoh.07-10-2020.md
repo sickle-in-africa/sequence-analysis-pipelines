@@ -16,8 +16,8 @@ $ sudo apt-get install zlib1g-dev
 $ sudo apt-get install libbz2-dev 
 $ sudo apt-get install -y liblzma-dev
 $ sudo apt-get install libcurl4-openssl-dev
-make
-sudo make install
+$ make
+$ sudo make install
 ```
 (worked on CHPC, without ```sudo``` of course)
 
@@ -33,11 +33,13 @@ $ make install install-htslib
 ## freebayes: contains several submodules that need to be cloned as well
 A simple ```git clone git@github.com:ekg/freebayes.git``` did not work for me
 
-```git clone --recurse-submodules -j8 git@github.com:ekg/freebayes.git
+```
+git clone --recurse-submodules -j8 git@github.com:ekg/freebayes.git
 ```
 works (-j option not avalable for git version on the CHPC)
 
-```make -j4
+```
+make -j4
 ```
 (no cmake on CHPC)
 
